@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Support;
+
+use App\Models\Profile;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+
+class ScopeService
+{
+    public function accessibleProfileIds(User $user): ?Collection
+    {
+        if ($user->hasRole('admin')) {
+            return null;
+        }
+
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+
+            if (! $teacher) {
+                return collect();
+            }
+
+            return $teacher->students()->pluck('students.id');
+        }
+
+        if ($user->hasAnyRole(['guardian', 'wali'])) {
+            $guardian = $user->guardian;
+
+            if (! $guardian) {
+                return collect();
+            }
+
+            return $guardian->students()->pluck('students.id');
+        }
+
+        if ($user->hasRole('student')) {
+            $student = $user->student;
+
+            if (! $student) {
+                return collect();
+            }
+
+            return collect([$student->id]);
+        }
+
+        return collect();
+    }
+
+    public function applyStudentScope(Builder $query, User $user, string $column = 'students.id'): Builder
+    {
+        $ids = $this->accessibleStudentIds($user);
+
+        if ($ids === null) {
+            return $query;
+        }
+
+        if ($ids->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn($column, $ids);
+    }
+
+    public function applyHafalanScope(Builder $query, User $user): Builder
+    {
+        $ids = $this->accessibleStudentIds($user);
+
+        if ($ids === null) {
+            return $query;
+        }
+
+        if ($ids->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn('student_id', $ids);
+    }
+
+    public function canAccessStudent(User $user, Student $student): bool
+    {
+        $ids = $this->accessibleStudentIds($user);
+
+        if ($ids === null) {
+            return true;
+        }
+
+        return $ids->contains($student->id);
+    }
+
+    public function studentsForUser(User $user): Collection
+    {
+        $query = Student::query()
+            ->with([
+                'user:id,name',
+                'class:id,name',
+            ])
+            ->orderBy('user_id');
+
+        $query = $this->applyStudentScope($query, $user);
+
+        return $query->get();
+    }
+
+    public function studentOptions(User $user): Collection
+    {
+        return $this->studentsForUser($user)
+            ->map(fn (Student $student) => [
+                'id' => $student->id,
+                'name' => $student->user->name,
+                'class' => $student->class?->name,
+            ]);
+    }
+
+    public function teacherOptions(): Collection
+    {
+        return Teacher::query()
+            ->with('user:id,name')
+            ->orderBy('user_id')
+            ->get()
+            ->map(fn (Teacher $teacher) => [
+                'id' => $teacher->id,
+                'name' => $teacher->user->name,
+            ]);
+    }
+
+    public function classOptionsFor(User $user): Collection
+    {
+        if ($user->hasRole('admin')) {
+            return Classe::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (Classe $classe) => [
+                    'id' => $classe->id,
+                    'name' => $classe->name,
+                ]);
+        }
+
+        if ($user->hasRole('teacher') && $user->teacher) {
+            return $user->teacher->classes()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (Classe $classe) => [
+                    'id' => $classe->id,
+                    'name' => $classe->name,
+                ]);
+        }
+
+        return collect();
+    }
+}
