@@ -115,7 +115,7 @@ export default defineEventHandler(async (event) => {
       for (const classId of classIds) {
         await prisma.teacherClass.create({
           data: {
-            profileId: newTeacher.profile!.id,
+            teacherId: newTeacher.profile!.id,
             classId
           }
         }).catch(() => {

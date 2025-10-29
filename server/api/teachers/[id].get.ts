@@ -1,4 +1,4 @@
-import prisma from '../../../utils/prisma'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const teacher = await prisma.user.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       include: {
         profile: {
           include: {
