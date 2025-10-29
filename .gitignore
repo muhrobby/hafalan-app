@@ -1,33 +1,52 @@
-# Nuxt dev/build outputs
-.output
-.data
-.nuxt
-.nitro
-.cache
-dist
-
-# Node dependencies
-node_modules
-
-# Logs
-logs
+# Nuxt
+.nuxt/
+dist/
+.output/
+.env
+.env.*.local
 *.log
 
-# Misc
-.DS_Store
-.fleet
-.idea
+# Node
+node_modules/
+package-lock.json
 
-# Local env files
-.env
-.env.*
-!.env.example
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Database
 *.db
 *.db-journal
 prisma/dev.db*
 
-# Temporary files
-prisma/schema-update.sql
-prisma/quick-seed.ts
+# Build
+.cache/
+.turbo/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old Laravel files
+app/
+bootstrap/
+config/
+database/
+routes/
+storage/app/
+storage/framework/
+tests/
+artisan
+composer.json
+composer.lock
+phpunit.xml
+vite.config.ts
+tsconfig.json
+eslint.config.js
+components.json
+.env.example
+resources/views/
