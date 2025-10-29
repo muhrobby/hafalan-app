@@ -1,0 +1,250 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============ USERS & AUTHENTICATION ============
+
+model User {
+  id                        Int       @id @default(autoincrement())
+  name                      String
+  email                     String    @unique
+  emailVerifiedAt           DateTime? @map("email_verified_at")
+  password                  String
+  rememberToken             String?   @map("remember_token")
+  
+  // Two-Factor Authentication
+  twoFactorSecret           String?   @map("two_factor_secret")
+  twoFactorRecoveryCodes    String?   @map("two_factor_recovery_codes")
+  twoFactorConfirmedAt      DateTime? @map("two_factor_confirmed_at")
+  
+  // Password Management
+  mustChangePassword        Boolean   @default(false) @map("must_change_password")
+  passwordChangedAt         DateTime? @map("password_changed_at")
+  temporaryPasswordSetAt    DateTime? @map("temporary_password_set_at")
+  
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  profile                   Profile?
+  roles                     UserRole[]
+  auditLogs                 AuditLog[]
+
+  @@map("users")
+}
+
+// ============ ROLES & PERMISSIONS ============
+
+model Role {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  guardName   String            @default("web") @map("guard_name")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  guardName   String            @default("web") @map("guard_name")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId      Int      @map("model_id")
+  roleId      Int      @map("role_id")
+  modelType   String   @default("App\\Models\\User") @map("model_type")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId, modelType])
+  @@index([modelType, userId])
+  @@map("model_has_roles")
+}
+
+model RolePermission {
+  permissionId Int        @map("permission_id")
+  roleId       Int        @map("role_id")
+
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([permissionId, roleId])
+  @@map("role_has_permissions")
+}
+
+// ============ PROFILES (Unified Students/Teachers/Guardians) ============
+
+model Profile {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique @map("user_id")
+  
+  // Identifiers (nullable, filled based on role)
+  nis         String?   @unique // Student ID Number
+  nip         String?   @unique // Teacher ID Number
+  
+  // Contact Info
+  phone       String?  
+  address     String?  
+  
+  // Personal Info (mostly for students)
+  birthDate   DateTime? @map("birth_date")
+  entryYear   Int?      @map("entry_year")
+  
+  // Academic Info (for students)
+  classId     Int?      @map("class_id")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class       Classe?   @relation("StudentClass", fields: [classId], references: [id], onDelete: SetNull)
+  
+  // Hafalan relationships
+  hafalansAsStudent  Hafalan[] @relation("StudentHafalans")
+  hafalansAsTeacher  Hafalan[] @relation("TeacherHafalans")
+  
+  // Guardian-Student relationships
+  guardians   ProfileRelation[] @relation("StudentGuardians")
+  students    ProfileRelation[] @relation("GuardianStudents")
+  
+  // Teacher-Class relationships
+  teacherClasses ClassTeacher[]
+
+  @@index([userId])
+  @@index([nis])
+  @@index([nip])
+  @@index([classId])
+  @@index([createdAt])
+  @@map("profiles")
+}
+
+// ============ CLASSES ============
+
+model Classe {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  students    Profile[] @relation("StudentClass")
+  teachers    ClassTeacher[]
+
+  @@map("classes")
+}
+
+model ClassTeacher {
+  classId     Int       @map("class_id")
+  teacherId   Int       @map("teacher_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  class       Classe    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher     Profile   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@id([classId, teacherId])
+  @@map("class_teacher")
+}
+
+// ============ PROFILE RELATIONS (Guardian-Student) ============
+
+model ProfileRelation {
+  profileId        Int       @map("profile_id")
+  relatedProfileId Int       @map("related_profile_id")
+  relationType     String    @default("guardian") @map("relation_type")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  student          Profile   @relation("StudentGuardians", fields: [profileId], references: [id], onDelete: Cascade)
+  guardian         Profile   @relation("GuardianStudents", fields: [relatedProfileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, relatedProfileId, relationType])
+  @@map("profile_relations")
+}
+
+// ============ SURAHS ============
+
+model Surah {
+  id          Int       @id @default(autoincrement())
+  number      Int       @unique
+  name        String
+  arabicName  String    @map("arabic_name")
+  verseCount  Int       @map("verse_count")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  hafalans    Hafalan[]
+
+  @@map("surahs")
+}
+
+// ============ HAFALANS ============
+
+model Hafalan {
+  id          Int       @id @default(autoincrement())
+  studentId   Int       @map("student_id")
+  teacherId   Int?      @map("teacher_id")
+  surahId     Int       @map("surah_id")
+  fromAyah    Int       @map("from_ayah")
+  toAyah      Int       @map("to_ayah")
+  date        DateTime 
+  status      String   
+  notes       String?  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  student     Profile   @relation("StudentHafalans", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher     Profile?  @relation("TeacherHafalans", fields: [teacherId], references: [id], onDelete: SetNull)
+  surah       Surah     @relation(fields: [surahId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([surahId])
+  @@index([date])
+  @@map("hafalans")
+}
+
+// ============ AUDIT LOGS ============
+
+model AuditLog {
+  id          Int       @id @default(autoincrement())
+  userId      Int?      @map("user_id")
+  action      String   
+  model       String?  
+  modelId     Int?      @map("model_id")
+  oldValues   String?   @map("old_values")
+  newValues   String?   @map("new_values")
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
