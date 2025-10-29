@@ -1,40 +1,116 @@
 <template>
-  <div>
-    <PageHeader
-      title="Dashboard"
-      description="Selamat datang di Hafalan App"
-    />
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Dashboard
+      </h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">
+        Selamat datang di Hafalan App - Sistem Manajemen Hafalan Al-Quran
+      </p>
+    </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-      <StatCard
-        title="Total Siswa"
-        :value="stats?.totalStudents || 0"
-        icon="i-heroicons-academic-cap"
-        icon-color="primary"
-        :change="stats?.studentsChange"
-      />
-      <StatCard
-        title="Total Guru"
-        :value="stats?.totalTeachers || 0"
-        icon="i-heroicons-user-group"
-        icon-color="green"
-        :change="stats?.teachersChange"
-      />
-      <StatCard
-        title="Total Hafalan"
-        :value="stats?.totalHafalan || 0"
-        icon="i-heroicons-book-open"
-        icon-color="blue"
-        :change="stats?.hafalanChange"
-      />
-      <StatCard
-        title="Rata-rata Nilai"
-        :value="stats?.averageScore ? `${stats.averageScore.toFixed(1)}%` : '0%'"
-        icon="i-heroicons-chart-bar"
-        icon-color="purple"
-        :change="stats?.scoreChange"
-      />
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- Total Siswa -->
+      <UCard class="hover:shadow-lg transition-shadow">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-semibold">
+              Total Siswa
+            </p>
+            <UIcon name="i-heroicons-academic-cap-20-solid" class="w-5 h-5 text-primary-500" />
+          </div>
+        </template>
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ stats?.totalStudents || 0 }}
+          </span>
+          <UBadge
+            v-if="stats?.studentsChange"
+            :color="stats.studentsChange >= 0 ? 'success' : 'error'"
+            variant="subtle"
+            class="mb-1"
+          >
+            {{ stats.studentsChange >= 0 ? '+' : '' }}{{ stats.studentsChange }}%
+          </UBadge>
+        </div>
+      </UCard>
+
+      <!-- Total Guru -->
+      <UCard class="hover:shadow-lg transition-shadow">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-semibold">
+              Total Guru
+            </p>
+            <UIcon name="i-heroicons-user-group-20-solid" class="w-5 h-5 text-green-500" />
+          </div>
+        </template>
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ stats?.totalTeachers || 0 }}
+          </span>
+          <UBadge
+            v-if="stats?.teachersChange"
+            :color="stats.teachersChange >= 0 ? 'success' : 'error'"
+            variant="subtle"
+            class="mb-1"
+          >
+            {{ stats.teachersChange >= 0 ? '+' : '' }}{{ stats.teachersChange }}%
+          </UBadge>
+        </div>
+      </UCard>
+
+      <!-- Total Hafalan -->
+      <UCard class="hover:shadow-lg transition-shadow">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-semibold">
+              Total Hafalan
+            </p>
+            <UIcon name="i-heroicons-book-open-20-solid" class="w-5 h-5 text-blue-500" />
+          </div>
+        </template>
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ stats?.totalHafalan || 0 }}
+          </span>
+          <UBadge
+            v-if="stats?.hafalanChange"
+            :color="stats.hafalanChange >= 0 ? 'success' : 'error'"
+            variant="subtle"
+            class="mb-1"
+          >
+            {{ stats.hafalanChange >= 0 ? '+' : '' }}{{ stats.hafalanChange }}%
+          </UBadge>
+        </div>
+      </UCard>
+
+      <!-- Rata-rata Nilai -->
+      <UCard class="hover:shadow-lg transition-shadow">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-semibold">
+              Rata-rata Nilai
+            </p>
+            <UIcon name="i-heroicons-chart-bar-20-solid" class="w-5 h-5 text-purple-500" />
+          </div>
+        </template>
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ stats?.averageScore ? `${stats.averageScore.toFixed(1)}%` : '0%' }}
+          </span>
+          <UBadge
+            v-if="stats?.scoreChange"
+            :color="stats.scoreChange >= 0 ? 'success' : 'error'"
+            variant="subtle"
+            class="mb-1"
+          >
+            {{ stats.scoreChange >= 0 ? '+' : '' }}{{ stats.scoreChange }}%
+          </UBadge>
+        </div>
+      </UCard>
     </div>
 
     <!-- Charts Grid -->
