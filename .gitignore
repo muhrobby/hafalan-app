@@ -31,22 +31,5 @@ prisma/dev.db*
 .DS_Store
 Thumbs.db
 
-# Old Laravel files
-app/
-bootstrap/
-config/
-database/
-routes/
-storage/app/
-storage/framework/
-tests/
-artisan
-composer.json
-composer.lock
-phpunit.xml
-vite.config.ts
-tsconfig.json
-eslint.config.js
-components.json
-.env.example
-resources/views/
+# Prisma
+prisma/dev.db-journal
