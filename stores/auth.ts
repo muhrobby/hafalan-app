@@ -37,6 +37,27 @@ export const useAuthStore = defineStore('auth', {
     hasAnyRole: (state) => (roles: string[]) => {
       return roles.some(role => state.user?.roles.includes(role)) || false
     },
+
+    // Check if user has permission (simplified - checks if admin or has specific role)
+    hasPermission: (state) => (permission: string) => {
+      // Admin has all permissions
+      if (state.user?.roles.includes('admin')) return true
+      
+      // Map permissions to roles
+      const permissionRoleMap: Record<string, string[]> = {
+        'view_students': ['admin', 'teacher'],
+        'view_teachers': ['admin'],
+        'view_guardians': ['admin', 'teacher'],
+        'view_classes': ['admin', 'teacher'],
+        'view_hafalan': ['admin', 'teacher', 'wali'],
+        'view_analytics': ['admin', 'teacher'],
+        'manage_users': ['admin'],
+        'view_audit_logs': ['admin'],
+      }
+      
+      const requiredRoles = permissionRoleMap[permission] || []
+      return requiredRoles.some(role => state.user?.roles.includes(role))
+    },
   },
   
   actions: {
