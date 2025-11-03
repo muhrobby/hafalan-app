@@ -14,7 +14,7 @@ services:
             - /var/www/html/node_modules
             - /var/www/html/public/build
         env_file:
-            - .env.production
+            - .env
         command: php-fpm
         networks:
             - internal
@@ -60,8 +60,10 @@ services:
         container_name: hafalan-db-postgres
         image: postgres:15
         restart: always
-        env_file:
-            - .env.production
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
         volumes:
             - db_data:/var/lib/postgresql/data
         networks:
