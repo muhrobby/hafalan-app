@@ -60,13 +60,15 @@ services:
         container_name: hafalan-db-postgres
         image: postgres:15
         restart: always
-        env_file:
-            - .env.production
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            LANG: C.UTF-8
         volumes:
             - db_data:/var/lib/postgresql/data
         networks:
             - internal
-    # --- AKHIR PERUBAHAN ---
 
 volumes:
     db_data: # Volume ini sekarang akan digunakan oleh PostgreSQL
