@@ -5,7 +5,7 @@ FROM composer:2.7 as builder
 WORKDIR /app
 COPY composer.json composer.lock ./
 # PERUBAHAN DI SINI: Ditambahkan --ignore-platform-reqs
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 # --- STAGE 2: Node Build (Vite/React Assets) ---
 FROM node:20-alpine as node_builder
