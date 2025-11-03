@@ -58,12 +58,11 @@ services:
     # --- PERUBAHAN DI BAWAH INI ---
     db:
         container_name: hafalan-db-postgres
-        image: postgres:15-alpine # Menggunakan image resmi PostgreSQL
+        image: postgres:15
         restart: always
         env_file:
             - .env.production
         volumes:
-            # PostgreSQL menyimpan data di /var/lib/postgresql/data
             - db_data:/var/lib/postgresql/data
         networks:
             - internal
