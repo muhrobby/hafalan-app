@@ -5,10 +5,19 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\TestHelpers;
 
 class DashboardTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TestHelpers;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Setup roles and surahs
+        $this->setUpTestData();
+    }
 
     public function test_guests_are_redirected_to_the_login_page()
     {
@@ -17,8 +26,8 @@ class DashboardTest extends TestCase
 
     public function test_authenticated_users_can_visit_the_dashboard()
     {
-        $this->actingAs($user = User::factory()->create());
+        $user = $this->createAdminUser();
 
-        $this->get(route('dashboard'))->assertOk();
+        $this->actingAs($user)->get(route('dashboard'))->assertOk();
     }
 }
