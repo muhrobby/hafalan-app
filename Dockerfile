@@ -4,8 +4,8 @@
 FROM composer:2.7 as builder
 WORKDIR /app
 COPY composer.json composer.lock ./
-# Install Composer dependencies (only production packages)
-RUN composer install --no-dev --prefer-dist --optimize-autoloader
+# PERUBAHAN DI SINI: Ditambahkan --ignore-platform-reqs
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
 # --- STAGE 2: Node Build (Vite/React Assets) ---
 FROM node:20-alpine as node_builder
@@ -21,7 +21,7 @@ RUN npm run build
 FROM php:8.2-fpm-alpine
 
 # Install essential extensions for Laravel
-# PERUBAHAN DI SINI: Mengganti mariadb-connector-c-dev dengan postgresql-dev
+# (Ini sudah benar, ext-gd dan pdo_pgsql diinstal di sini)
 RUN apk add --no-cache \
     nginx-light \
     libzip-dev \
@@ -29,7 +29,6 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     postgresql-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    # PERUBAHAN DI SINI: Mengganti pdo_mysql dengan pdo_pgsql
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl
 
 # Install Laravel's common CLI tools (optional but helpful)
