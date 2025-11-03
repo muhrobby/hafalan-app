@@ -34,7 +34,7 @@ RUN npm run build
 FROM php:8.2-fpm-alpine
 
 # Install essential extensions
-# (INI SUDAH BENAR, JANGAN DIUBAH)
+# PERUBAHAN DI SINI: Ditambahkan 'nodejs' dan 'npm'
 RUN apk add --no-cache \
     libzip-dev \
     libpng-dev \
@@ -43,11 +43,10 @@ RUN apk add --no-cache \
     icu-dev \
     freetype-dev \
     libxml2-dev \
+    nodejs \
+    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
-
-# PERUBAHAN DI SINI:
-# Baris 'wget' yang menyebabkan error 404 Not Found telah DIHAPUS.
 
 # Set working directory for the application
 WORKDIR /var/www/html
