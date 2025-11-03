@@ -34,7 +34,7 @@ RUN npm run build
 FROM php:8.2-fpm-alpine
 
 # Install essential extensions
-# PERUBAHAN DI SINI: Hapus 'nginx-light' dari baris ini
+# (INI SUDAH BENAR, JANGAN DIUBAH)
 RUN apk add --no-cache \
     libzip-dev \
     libpng-dev \
@@ -46,9 +46,8 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
 
-# Install Laravel's common CLI tools (optional but helpful)
-RUN wget https://raw.githubusercontent.com/laravel/installer/master/artisan -O /usr/local/bin/artisan \
-    && chmod +x /usr/local/bin/artisan
+# PERUBAHAN DI SINI:
+# Baris 'wget' yang menyebabkan error 404 Not Found telah DIHAPUS.
 
 # Set working directory for the application
 WORKDIR /var/www/html
