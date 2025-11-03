@@ -60,10 +60,8 @@ services:
         container_name: hafalan-db-postgres
         image: postgres:15
         restart: always
-        environment:
-            POSTGRES_DB: ${DB_DATABASE}
-            POSTGRES_USER: ${DB_USERNAME}
-            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        env_file:
+            - .env.production
         volumes:
             - db_data:/var/lib/postgresql/data
         networks:
