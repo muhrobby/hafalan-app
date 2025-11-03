@@ -1,18 +1,17 @@
 # File: Dockerfile
 
 # --- STAGE 1: Build Dependencies (Builder Stage) ---
+# (INI SUDAH BENAR, JANGAN DIUBAH)
 FROM composer:2.7 as builder
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 # --- STAGE 2: Node Build (Vite/React Assets) ---
+# (INI SUDAH BENAR, JANGAN DIUBAH)
 FROM php:8.2-fpm-alpine as node_builder
 ENV LANG C.UTF-8
 RUN apk add --no-cache nodejs npm
-
-# 2. Install PHP build dependencies
-# PERUBAHAN DI SINI: Ditambahkan 'libxml2-dev'
 RUN apk add --no-cache \
     libzip-dev \
     libpng-dev \
@@ -23,8 +22,6 @@ RUN apk add --no-cache \
     libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
-
-# 3. Lanjutkan proses build
 WORKDIR /app
 COPY --from=builder /app /app
 COPY package.json package-lock.json ./
@@ -37,9 +34,8 @@ RUN npm run build
 FROM php:8.2-fpm-alpine
 
 # Install essential extensions
-# PERUBAHAN DI SINI: Ditambahkan 'libxml2-dev'
+# PERUBAHAN DI SINI: Hapus 'nginx-light' dari baris ini
 RUN apk add --no-cache \
-    nginx-light \
     libzip-dev \
     libpng-dev \
     libjpeg-turbo-dev \
