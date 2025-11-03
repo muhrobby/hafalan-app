@@ -4,21 +4,15 @@
 FROM composer:2.7 as builder
 WORKDIR /app
 COPY composer.json composer.lock ./
-# Sudah benar: Mengabaikan platform (ext-gd) & tidak menjalankan script (artisan)
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 # --- STAGE 2: Node Build (Vite/React Assets) ---
-# Menggunakan image PHP sebagai dasar, ini sudah benar
 FROM php:8.2-fpm-alpine as node_builder
-
-# Set locale
 ENV LANG C.UTF-8
-
-# 1. Install Node.js dan NPM
 RUN apk add --no-cache nodejs npm
 
-# 2. Install PHP build dependencies (IDENTIK DENGAN STAGE 3)
-# PERUBAHAN: Menambahkan 'freetype-dev' dan menggunakan 'docker-php-ext-install intl'
+# 2. Install PHP build dependencies
+# PERUBAHAN DI SINI: Ditambahkan 'libxml2-dev'
 RUN apk add --no-cache \
     libzip-dev \
     libpng-dev \
@@ -26,24 +20,24 @@ RUN apk add --no-cache \
     postgresql-dev \
     icu-dev \
     freetype-dev \
+    libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
 
-# 3. Lanjutkan proses build seperti biasa
+# 3. Lanjutkan proses build
 WORKDIR /app
 COPY --from=builder /app /app
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
-# Perintah ini sekarang akan berjalan di lingkungan PHP yang lengkap
 RUN npm run build
 
 
 # --- STAGE 3: Final PHP-FPM Image (Production) ---
 FROM php:8.2-fpm-alpine
 
-# Install essential extensions for Laravel
-# PERUBAHAN: Menambahkan 'freetype-dev' di sini juga
+# Install essential extensions
+# PERUBAHAN DI SINI: Ditambahkan 'libxml2-dev'
 RUN apk add --no-cache \
     nginx-light \
     libzip-dev \
@@ -52,6 +46,7 @@ RUN apk add --no-cache \
     postgresql-dev \
     icu-dev \
     freetype-dev \
+    libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
 
