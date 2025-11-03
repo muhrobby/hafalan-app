@@ -12,7 +12,7 @@ FROM node:20-alpine as node_builder
 
 ENV LANG C.UTF-8
 
-RUN apk add --no-cache php php-dom php-json php-tokenizer php-xmlwriter php-iconv
+RUN apk add --no-cache php php-dom php-json php-tokenizer php-xmlwriter php-iconv icu-libs php-intl
 
 WORKDIR /app
 COPY --from=builder /app /app
