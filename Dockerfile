@@ -8,21 +8,26 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 # --- STAGE 2: Node Build (Vite/React Assets) ---
-# PERUBAHAN BESAR: Kita gunakan image PHP sebagai dasarnya
+# Menggunakan image PHP sebagai dasar, ini sudah benar
 FROM php:8.2-fpm-alpine as node_builder
 
-# 1. Install dependensi PHP yang dibutuhkan Artisan (SAMA SEPERTI STAGE 3)
+# Set locale
+ENV LANG C.UTF-8
+
+# 1. Install Node.js dan NPM
+RUN apk add --no-cache nodejs npm
+
+# 2. Install PHP build dependencies (IDENTIK DENGAN STAGE 3)
+# PERUBAHAN: Menambahkan 'freetype-dev' dan menggunakan 'docker-php-ext-install intl'
 RUN apk add --no-cache \
     libzip-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     postgresql-dev \
     icu-dev \
+    freetype-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
-
-# 2. Install Node.js dan NPM di dalam image PHP ini
-RUN apk add --no-cache nodejs npm
 
 # 3. Lanjutkan proses build seperti biasa
 WORKDIR /app
@@ -35,10 +40,10 @@ RUN npm run build
 
 
 # --- STAGE 3: Final PHP-FPM Image (Production) ---
-# Stage ini TIDAK BERUBAH. Ini sudah benar.
 FROM php:8.2-fpm-alpine
 
 # Install essential extensions for Laravel
+# PERUBAHAN: Menambahkan 'freetype-dev' di sini juga
 RUN apk add --no-cache \
     nginx-light \
     libzip-dev \
@@ -46,6 +51,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     postgresql-dev \
     icu-dev \
+    freetype-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql bcmath dom zip pcntl intl
 
