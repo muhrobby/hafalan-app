@@ -16,20 +16,8 @@ class ScopeService
         }
 
         if ($user->hasRole('teacher')) {
-            $profile = $user->profile;
-
-            if (!$profile) {
-                return collect();
-            }
-
-            // Get student IDs through class assignments
-            return $profile->classes()
-                ->with('students')
-                ->get()
-                ->pluck('students')
-                ->flatten()
-                ->pluck('id')
-                ->unique();
+            // Teacher dapat mengakses semua student (tidak dibatasi oleh kelas)
+            return null; // null = access all students
         }
 
         if ($user->hasAnyRole(['guardian', 'wali'])) {
@@ -106,8 +94,19 @@ class ScopeService
             return true;
         }
 
+        // Teacher dapat mengakses semua student
+        if ($user->hasRole('teacher')) {
+            return true;
+        }
+
         $profileIds = $this->accessibleProfileIds($user);
-        return $profileIds?->contains($profile->id) ?? false;
+        
+        // Jika null, artinya bisa akses semua
+        if ($profileIds === null) {
+            return true;
+        }
+        
+        return $profileIds->contains($profile->id);
     }
 
     public function studentOptions(User $user): Collection

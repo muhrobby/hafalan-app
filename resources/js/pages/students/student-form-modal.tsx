@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { QuickGuardianModal } from '@/components/quick-guardian-modal';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -10,8 +11,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MultiSelect, type MultiSelectOption } from '@/components/ui/multi-select';
-import { QuickGuardianModal } from '@/components/quick-guardian-modal';
+import {
+    MultiSelect,
+    type MultiSelectOption,
+} from '@/components/ui/multi-select';
 import { useForm, usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
 import * as React from 'react';
@@ -34,6 +37,10 @@ type StudentFormModalProps = {
     title: string;
 };
 
+type PageProps = {
+    availableGuardians?: MultiSelectOption[];
+};
+
 export function StudentFormModal({
     open,
     onOpenChange,
@@ -41,10 +48,15 @@ export function StudentFormModal({
     title,
 }: StudentFormModalProps) {
     const isEditing = Boolean(student);
-    const page = usePage();
-    const baseAvailableGuardians = (page.props as any).availableGuardians as MultiSelectOption[] || [];
-    
-    const [availableGuardians, setAvailableGuardians] = React.useState<MultiSelectOption[]>(baseAvailableGuardians);
+    const page = usePage<PageProps>();
+    const baseAvailableGuardians = React.useMemo(
+        () => page.props.availableGuardians || [],
+        [page.props.availableGuardians],
+    );
+
+    const [availableGuardians, setAvailableGuardians] = React.useState<
+        MultiSelectOption[]
+    >(baseAvailableGuardians);
     const [quickGuardianOpen, setQuickGuardianOpen] = React.useState(false);
 
     React.useEffect(() => {
@@ -111,14 +123,16 @@ export function StudentFormModal({
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>
                         <DialogDescription>
-                            Lengkapi informasi santri. NIS akan dibuat otomatis
-                            jika dikosongkan.
+                            Lengkapi informasi santri. Isi data yang diperlukan
+                            saja.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-3">
                         <div className="grid gap-2">
-                            <Label htmlFor="student-name">Nama</Label>
+                            <Label htmlFor="student-name">
+                                Nama <span className="text-destructive">*</span>
+                            </Label>
                             <Input
                                 id="student-name"
                                 value={data.name}
@@ -144,24 +158,6 @@ export function StudentFormModal({
                                 placeholder="email@contoh.com"
                             />
                             <InputError message={errors.email} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="student-class">
-                                Kelas{' '}
-                                <span className="text-muted-foreground">
-                                    (opsional)
-                                </span>
-                            </Label>
-                            <Input
-                                id="student-class"
-                                value={data.class_name ?? ''}
-                                onChange={(event) =>
-                                    setData('class_name', event.target.value)
-                                }
-                                placeholder="Contoh: 7A"
-                            />
-                            <InputError message={(errors as any).class_name} />
                         </div>
 
                         <div className="grid gap-2">
@@ -201,27 +197,10 @@ export function StudentFormModal({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="student-nis">
-                                NIS (opsional)
-                            </Label>
-                            <Input
-                                id="student-nis"
-                                value={data.nis ?? ''}
-                                onChange={(event) =>
-                                    setData('nis', event.target.value)
-                                }
-                                placeholder="Kosongkan untuk otomatis"
-                            />
-                            <InputError message={errors.nis} />
-                        </div>
-
-                        <div className="grid gap-2">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="student-guardians">
                                     Wali Santri{' '}
-                                    <span className="text-muted-foreground">
-                                        (opsional)
-                                    </span>
+                                    <span className="text-destructive">*</span>
                                 </Label>
                                 <Button
                                     type="button"
@@ -237,12 +216,22 @@ export function StudentFormModal({
                             <MultiSelect
                                 options={availableGuardians}
                                 selected={data.guardian_ids ?? []}
-                                onChange={(selected) => setData('guardian_ids', selected as number[])}
+                                onChange={(selected) =>
+                                    setData(
+                                        'guardian_ids',
+                                        selected as number[],
+                                    )
+                                }
                                 placeholder="Pilih wali santri..."
                             />
-                            <InputError message={(errors as any).guardian_ids} />
+                            <InputError
+                                message={
+                                    errors.guardian_ids as string | undefined
+                                }
+                            />
                             <p className="text-xs text-muted-foreground">
-                                Anda dapat memilih lebih dari satu wali
+                                Wali santri wajib diisi. Anda dapat memilih
+                                lebih dari satu wali
                             </p>
                         </div>
                     </div>
@@ -269,21 +258,27 @@ export function StudentFormModal({
                 </form>
             </DialogContent>
 
-            <QuickGuardianModal
-                open={quickGuardianOpen}
-                onOpenChange={setQuickGuardianOpen}
-                onSuccess={(guardianId, guardianName) => {
-                    // Add new guardian to available options
-                    const newOption: MultiSelectOption = {
-                        value: guardianId,
-                        label: guardianName,
-                    };
-                    setAvailableGuardians((prev) => [...prev, newOption]);
-                    
-                    // Auto-select the newly created guardian
-                    setData('guardian_ids', [...(data.guardian_ids ?? []), guardianId]);
-                }}
-            />
+            {/* Render QuickGuardianModal outside the parent Dialog to prevent modal nesting issues */}
+            {open && (
+                <QuickGuardianModal
+                    open={quickGuardianOpen}
+                    onOpenChange={setQuickGuardianOpen}
+                    onSuccess={(guardianId, guardianName) => {
+                        // Add new guardian to available options
+                        const newOption: MultiSelectOption = {
+                            value: guardianId,
+                            label: guardianName,
+                        };
+                        setAvailableGuardians((prev) => [...prev, newOption]);
+
+                        // Auto-select the newly created guardian
+                        setData('guardian_ids', [
+                            ...(data.guardian_ids ?? []),
+                            guardianId,
+                        ]);
+                    }}
+                />
+            )}
         </Dialog>
     );
 }

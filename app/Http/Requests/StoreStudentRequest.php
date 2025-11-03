@@ -29,7 +29,7 @@ class StoreStudentRequest extends FormRequest
             'birth_date'   => ['nullable', 'date'],
             'nis'          => ['nullable', 'string', 'max:50', Rule::unique('profiles', 'nis')],
             'phone'        => ['nullable', 'string', 'max:30'],
-            'guardian_ids' => ['nullable', 'array'],
+            'guardian_ids' => ['required', 'array', 'min:1'],
             'guardian_ids.*' => ['exists:profiles,id'],
         ];
     }

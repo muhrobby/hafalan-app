@@ -27,7 +27,6 @@ import { toast } from 'react-toastify';
 import { buildStudentColumns, type StudentRow } from './columns';
 import { StudentTable } from './data-table';
 import { StudentFormModal, type StudentPayload } from './student-form-modal';
-import { StudentGuardianComboModal } from './student-guardian-combo-modal';
 
 type Failure = { row: number; errors: string[]; values?: Record<string, any> };
 
@@ -50,7 +49,6 @@ export default function StudentsIndex({
     canManage,
 }: StudentsPageProps) {
     const [formOpen, setFormOpen] = React.useState(false);
-    const [comboFormOpen, setComboFormOpen] = React.useState(false);
     const [uploadOpen, setUploadOpen] = React.useState(false);
     const [selectedStudent, setSelectedStudent] = React.useState<
         StudentPayload | undefined
@@ -155,14 +153,6 @@ export default function StudentsIndex({
                                     Tambah Santri
                                 </Button>
                                 <Button
-                                    variant="secondary"
-                                    onClick={() => setComboFormOpen(true)}
-                                    className="bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 hover:from-emerald-100 hover:to-teal-100 dark:from-emerald-950/50 dark:to-teal-950/50 dark:text-emerald-300"
-                                >
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Santri + Wali
-                                </Button>
-                                <Button
                                     variant="outline"
                                     onClick={() => setUploadOpen(true)}
                                     className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 dark:from-purple-950/30 dark:to-pink-950/30"
@@ -249,10 +239,6 @@ export default function StudentsIndex({
                         title={
                             selectedStudent ? 'Edit Santri' : 'Tambah Santri'
                         }
-                    />
-                    <StudentGuardianComboModal
-                        open={comboFormOpen}
-                        onOpenChange={setComboFormOpen}
                     />
                     <UploadCsvModal
                         open={uploadOpen}
