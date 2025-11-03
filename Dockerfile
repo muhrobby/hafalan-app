@@ -10,7 +10,7 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platf
 # --- STAGE 2: Node Build (Vite/React Assets) ---
 FROM node:20-alpine as node_builder
 
-RUN apk add --no-cache php php-dom php-json php-tokenizer php-xmlwriter
+RUN apk add --no-cache php php-dom php-json php-tokenizer php-xmlwriter php-iconv
 
 WORKDIR /app
 COPY --from=builder /app /app
