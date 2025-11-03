@@ -12,7 +12,7 @@ services:
             - .:/var/www/html
             - /var/www/html/vendor
             - /var/www/html/node_modules
-            - /var/www/html/public/build
+            - ./public/build:/var/www/html/public/build
         env_file:
             - .env
         command: php-fpm
@@ -29,7 +29,7 @@ services:
             - .:/var/www/html:ro
             # - /var/www/html/storage
             # - /var/www/html/bootstrap/cache
-            - /var/www/html/public/build
+            - ./public/build:/var/www/html/public/build:ro
         depends_on:
             - app
         labels:
@@ -50,6 +50,15 @@ services:
             - traefik.http.middlewares.hafalan-secure.headers.referrerPolicy=no-referrer-when-downgrade
             - traefik.http.middlewares.hafalan-secure.headers.permissionsPolicy=geolocation=(), microphone=(), camera=()
             - traefik.http.middlewares.hafalan-cache.headers.customResponseHeaders.Cache-Control=public, max-age=3600, immutable
+            
+            # Build assets get longer cache
+            - traefik.http.routers.hafalan-assets.rule=Host(`hafalan.humahub.my.id`) && PathPrefix(`/build/`)
+            - traefik.http.routers.hafalan-assets.entrypoints=websecure
+            - traefik.http.routers.hafalan-assets.tls=true
+            - traefik.http.routers.hafalan-assets.tls.certresolver=cf
+            - traefik.http.routers.hafalan-assets.middlewares=hafalan-assets-cache
+            - traefik.http.services.hafalan-assets.loadbalancer.server.port=80
+            - traefik.http.middlewares.hafalan-assets-cache.headers.customResponseHeaders.Cache-Control=public, max-age=31536000, immutable
         networks:
             # GANTI 'traefik_web' dengan nama network eksternal Traefik Anda
             - traefik-proxy
