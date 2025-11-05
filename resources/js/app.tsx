@@ -7,7 +7,7 @@ import { initializeTheme } from './hooks/use-appearance';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = (window as any).appName || import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
