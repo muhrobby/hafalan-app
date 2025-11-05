@@ -8,18 +8,18 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
-        # volumes: ini baru direvisi semua
-        #     - .:/var/www/html
-        #     - /var/www/html/vendor
-        #     - /var/www/html/node_modules
-        #     - ./public/build:/var/www/html/public/build
+        volumes:
+            - .:/var/www/html
+            - /var/www/html/vendor
+            - /var/www/html/node_modules
+            - ./public/build:/var/www/html/public/build
         env_file:
             - .env
         command: php-fpm
         networks:
             - internal
-        volumes:
-            - app_storage:/var/www/html/storage
+        # volumes:
+        #     - app_storage:/var/www/html/storage
 
     # 2. Web Server (Nginx) Service with Traefik
     web:
@@ -28,10 +28,10 @@ services:
         restart: always
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-            # - .:/var/www/html:ro ini baru direvisi
+            - .:/var/www/html:ro
             # - /var/www/html/storage
             # - /var/www/html/bootstrap/cache
-            # - ./public/build:/var/www/html/public/build:ro ini baru direvisi
+            - ./public/build:/var/www/html/public/build:ro
         depends_on:
             - app
         labels:
