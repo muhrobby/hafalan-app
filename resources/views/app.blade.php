@@ -30,7 +30,7 @@
             }
         </style>
 
-        <title inertia>{{ 'Asakinah Fondation'}}</title>
+        <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="icon" href="/favicon.ico?v=2" sizes="any">
         <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">

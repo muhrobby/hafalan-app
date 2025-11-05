@@ -42,15 +42,18 @@ services:
             - traefik.http.routers.hafalan.entrypoints=websecure
             - traefik.http.routers.hafalan.tls=true
             - traefik.http.routers.hafalan.tls.certresolver=cf
-            - traefik.http.services.hafalan.loadbalancer.server.port=80
+            - traefik.http.routers.hafalan.service=hafalan-service
 
             # Build assets get longer cache
             - traefik.http.routers.hafalan-assets.rule=Host(`hafalan.humahub.my.id`) && PathPrefix(`/build/`)
             - traefik.http.routers.hafalan-assets.entrypoints=websecure
             - traefik.http.routers.hafalan-assets.tls=true
             - traefik.http.routers.hafalan-assets.tls.certresolver=cf
+            - traefik.http.routers.hafalan-assets.service=hafalan-service
             - traefik.http.routers.hafalan-assets.middlewares=hafalan-assets-cache
-            - traefik.http.services.hafalan-assets.loadbalancer.server.port=80
+
+            # Single service for both routers
+            - traefik.http.services.hafalan-service.loadbalancer.server.port=80
             - traefik.http.middlewares.hafalan-assets-cache.headers.customResponseHeaders.Cache-Control=public, max-age=31536000, immutable
         networks:
             # GANTI 'traefik_web' dengan nama network eksternal Traefik Anda
