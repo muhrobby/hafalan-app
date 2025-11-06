@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#2d5f3f" stroke="#1a3a28" stroke-width="2"/>
+  
+  <!-- Islamic Building/Dome -->
+  <g transform="translate(100, 50)">
+    <!-- Dome -->
+    <ellipse cx="0" cy="0" rx="45" ry="25" fill="#f5f5dc" stroke="#8b7355" stroke-width="1.5"/>
+    <!-- Crescent on top -->
+    <path d="M -3,-28 Q -8,-33 -3,-38 Q 2,-33 -3,-28 Z" fill="#ffd700" stroke="#daa520" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Book/Quran -->
+  <g transform="translate(100, 85)">
+    <!-- Book cover -->
+    <rect x="-40" y="0" width="80" height="60" rx="3" fill="#f5f5dc" stroke="#8b7355" stroke-width="2"/>
+    <!-- Book pages -->
+    <rect x="-38" y="2" width="38" height="56" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <rect x="0" y="2" width="38" height="56" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <!-- Center line -->
+    <line x1="0" y1="2" x2="0" y2="58" stroke="#8b7355" stroke-width="1.5"/>
+    <!-- Decorative lines on pages -->
+    <line x1="-30" y1="15" x2="-8" y2="15" stroke="#ccc" stroke-width="1"/>
+    <line x1="-30" y1="25" x2="-8" y2="25" stroke="#ccc" stroke-width="1"/>
+    <line x1="-30" y1="35" x2="-8" y2="35" stroke="#ccc" stroke-width="1"/>
+    <line x1="8" y1="15" x2="30" y2="15" stroke="#ccc" stroke-width="1"/>
+    <line x1="8" y1="25" x2="30" y2="25" stroke="#ccc" stroke-width="1"/>
+    <line x1="8" y1="35" x2="30" y2="35" stroke="#ccc" stroke-width="1"/>
+  </g>
+  
+  <!-- Text Banner -->
+  <g transform="translate(100, 170)">
+    <rect x="-70" y="-12" width="140" height="24" rx="5" fill="#1a3a28" opacity="0.8"/>
+    <text x="0" y="5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f5f5dc" text-anchor="middle">RUMAH TAHFIZH</text>
+  </g>
+</svg>

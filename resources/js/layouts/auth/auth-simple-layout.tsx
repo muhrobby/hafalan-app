@@ -26,11 +26,11 @@ export default function AuthSimpleLayout({
                                 href={home()}
                                 className="flex flex-col items-center gap-3 font-medium"
                             >
-                                <div className="mb-1 flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/30">
-                                    <AppLogoIcon className="size-8 fill-current text-white" />
+                                <div className="mb-1 flex size-16 items-center justify-center rounded-xl bg-white shadow-lg">
+                                    <AppLogoIcon className="size-14" />
                                 </div>
                                 <span className="text-lg font-semibold tracking-tight">
-                                    Hafalan Al-Quran
+                                    Rumah Tahfizh As-Sakinah
                                 </span>
                             </Link>
 
