@@ -1,0 +1,136 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     HAFALAN - QUICK COMMANDS REFERENCE                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📋 COPY & PASTE COMMANDS
+
+NAVIGATE TO PROJECT:
+  cd /home/robby/stacks/prod/hafalan
+
+UPDATE COMMANDS:
+  ./scripts/update-backend.sh          # Update backend only (2-5 min)
+  ./scripts/update-frontend.sh         # Update frontend only (3-7 min)
+  ./scripts/update-full.sh             # Update everything (5-15 min)
+  ./scripts/cache-refresh.sh           # Clear cache only (< 1 min)
+
+DIAGNOSTICS & MONITORING:
+  ./scripts/troubleshoot.sh            # System health check
+  podman-compose ps                    # Check container status
+  podman-compose logs -f app           # View app logs (real-time)
+  podman-compose logs db               # View database logs
+  podman-compose logs web              # View nginx logs
+
+CONTAINER MANAGEMENT:
+  podman-compose restart               # Restart all containers
+  podman-compose down && podman-compose up -d    # Full restart
+  podman-compose stop                  # Stop all containers
+  podman-compose start                 # Start all containers
+
+GIT OPERATIONS:
+  git pull origin main                 # Pull latest changes
+  git status                           # Check status
+  git diff HEAD origin/main            # See what changed
+
+DATABASE:
+  podman exec hafalan-app php artisan migrate:status           # Check migrations
+  podman exec hafalan-app php artisan migrate                  # Run migrations
+  podman exec hafalan-app php artisan migrate:rollback         # Rollback
+  podman exec hafalan-db-postgres pg_dump hafalan_db > backup.sql   # Backup
+
+ENVIRONMENT:
+  cat .env                             # View environment variables
+  nano .env                            # Edit environment variables
+  podman exec hafalan-app php artisan config:cache             # Regenerate config
+
+CACHE & OPTIMIZATION:
+  podman exec hafalan-app php artisan config:cache             # Config cache
+  podman exec hafalan-app php artisan cache:clear              # Clear cache
+  podman exec hafalan-app php artisan route:cache              # Route cache
+  podman exec hafalan-app php artisan view:clear               # Clear views
+
+FRONTEND SPECIFIC:
+  podman exec hafalan-app npm install                          # Install deps
+  podman exec hafalan-app sh -c "cd /var/www/html && node ./node_modules/vite/bin/vite.js build"  # Build
+
+TROUBLESHOOTING:
+  podman exec hafalan-app php artisan tinker                   # PHP REPL
+  podman exec hafalan-db-postgres psql -U hafalan_user hafalan_db  # DB client
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⏱️  TIME REQUIRED BY OPERATION:
+
+Backend update:          2-5 minutes
+Frontend update:         3-7 minutes
+Full stack update:       5-15 minutes
+Cache clear:             < 1 minute
+Database backup:         < 2 minutes
+Restart containers:      30 seconds - 1 minute
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ TYPICAL UPDATE WORKFLOW:
+
+  1. cd /home/robby/stacks/prod/hafalan
+  2. git pull origin main
+  3. ./scripts/update-backend.sh          (or use appropriate script)
+  4. podman-compose logs -f app           (watch for errors)
+  5. Hard refresh browser (Ctrl+F5)
+  6. Test features
+  7. Done!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+❓ QUICK FIXES:
+
+Logo not updating?
+  ./scripts/cache-refresh.sh
+  Then: Ctrl+F5 in browser
+
+Changes not showing?
+  ./scripts/cache-refresh.sh
+  Then: Ctrl+Shift+Del (clear browser cache)
+  Then: Ctrl+F5
+
+Container not responding?
+  podman-compose restart
+
+Not sure what's wrong?
+  ./scripts/troubleshoot.sh
+
+Database error?
+  podman exec hafalan-app php artisan migrate:status
+  podman-compose logs db
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💡 REMEMBER:
+
+✓ Always hard refresh browser (Ctrl+F5) after updates
+✓ Run scripts from project directory
+✓ Don't run multiple scripts at same time
+✓ Check logs: podman-compose logs app
+✓ Backup before migrations
+✓ Use ./scripts/troubleshoot.sh when stuck
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔗 LINKS:
+
+Production URL: https://hafalan.humahub.my.id
+Project: /home/robby/stacks/prod/hafalan/
+Container Registry: localhost/hafalan_app
+Database: hafalan_db (PostgreSQL)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📞 FOR MORE HELP:
+
+Read: START_HERE.md
+Reference: QUICK_MAINTENANCE.md
+Detailed: MAINTENANCE_GUIDE.md
+Scripts: scripts/README.md
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Last Updated: 2025-11-06
