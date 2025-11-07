@@ -32,13 +32,13 @@ class AnalyticsController extends Controller
 
         $studentId = $this->resolveStudentFilter($user, $request->query('student_id'), $this->scope);
         $teacherId = $request->query('teacher_id');
-        $classId = $request->query('class_id');
+        // $classId = $request->query('class_id'); // DEPRECATED: Class system removed
 
         $baseQuery = $this->scope
             ->applyHafalanScope(Hafalan::query(), $user)
             ->when($studentId, fn ($query, $id) => $query->where('student_id', $id))
             ->when($teacherId && $user->hasRole('admin'), fn ($query) => $query->where('teacher_id', $teacherId))
-            ->when($classId, fn ($query, $id) => $query->whereHas('student.profile', fn ($q) => $q->where('class_id', $id)))
+            // ->when($classId, fn ($query, $id) => $query->whereHas('student.profile', fn ($q) => $q->where('class_id', $id))) // DEPRECATED: Class system removed
             ->betweenDates($from->toDateString(), $to->toDateString());
 
         $trend = (clone $baseQuery)
@@ -78,30 +78,31 @@ class AnalyticsController extends Controller
                 ]);
         }
 
+        // DEPRECATED: Class system removed
         $classPerformance = [];
-        if ($user->hasRole('admin')) {
-            $classPerformance = (clone $baseQuery)
-                ->leftJoin('profiles', 'profiles.id', '=', 'hafalans.student_id')
-                ->leftJoin('classes', 'classes.id', '=', 'profiles.class_id')
-                ->selectRaw("COALESCE(classes.name, 'Tidak ada Kelas') as class_name")
-                ->selectRaw('COUNT(hafalans.id) as total')
-                ->selectRaw("SUM(CASE WHEN hafalans.status = 'murojaah' THEN 1 ELSE 0 END) as total_murojaah")
-                ->selectRaw("SUM(CASE WHEN hafalans.status = 'selesai' THEN 1 ELSE 0 END) as total_selesai")
-                ->groupBy('class_name')
-                ->orderBy('class_name')
-                ->get()
-                ->map(fn ($row) => [
-                    'class_name' => $row->class_name,
-                    'total' => (int) $row->total,
-                    'total_murojaah' => (int) $row->total_murojaah,
-                    'total_selesai' => (int) $row->total_selesai,
-                ]);
-        }
+        // if ($user->hasRole('admin')) {
+        //     $classPerformance = (clone $baseQuery)
+        //         ->leftJoin('profiles', 'profiles.id', '=', 'hafalans.student_id')
+        //         ->leftJoin('classes', 'classes.id', '=', 'profiles.class_id')
+        //         ->selectRaw("COALESCE(classes.name, 'Tidak ada Kelas') as class_name")
+        //         ->selectRaw('COUNT(hafalans.id) as total')
+        //         ->selectRaw("SUM(CASE WHEN hafalans.status = 'murojaah' THEN 1 ELSE 0 END) as total_murojaah")
+        //         ->selectRaw("SUM(CASE WHEN hafalans.status = 'selesai' THEN 1 ELSE 0 END) as total_selesai")
+        //         ->groupBy('class_name')
+        //         ->orderBy('class_name')
+        //         ->get()
+        //         ->map(fn ($row) => [
+        //             'class_name' => $row->class_name,
+        //             'total' => (int) $row->total,
+        //             'total_murojaah' => (int) $row->total_murojaah,
+        //             'total_selesai' => (int) $row->total_selesai,
+        //         ]);
+        // }
 
         $availableFilters = [
             'students' => $this->scope->studentOptions($user),
             'teachers' => $user->hasRole('admin') ? $this->scope->teacherOptions() : collect(),
-            'classes' => $this->scope->classOptionsFor($user),
+            // 'classes' => $this->scope->classOptionsFor($user), // DEPRECATED: Class system removed
         ];
 
         $filters = [
@@ -109,7 +110,7 @@ class AnalyticsController extends Controller
             'to' => $to->toDateString(),
             'student_id' => $studentId ? (string) $studentId : null,
             'teacher_id' => $teacherId ? (string) $teacherId : null,
-            'class_id' => $classId ? (string) $classId : null,
+            // 'class_id' => $classId ? (string) $classId : null, // DEPRECATED: Class system removed
         ];
 
         return Inertia::render('analytics/Index', [
@@ -140,13 +141,13 @@ class AnalyticsController extends Controller
 
         $studentId = $this->resolveStudentFilter($user, $request->query('student_id'), $this->scope);
         $teacherId = $request->query('teacher_id');
-        $classId = $request->query('class_id');
+        // $classId = $request->query('class_id'); // DEPRECATED: Class system removed
 
         $baseQuery = $this->scope
             ->applyHafalanScope(Hafalan::query(), $user)
             ->when($studentId, fn ($query, $id) => $query->where('student_id', $id))
             ->when($teacherId && $user->hasRole('admin'), fn ($query) => $query->where('teacher_id', $teacherId))
-            ->when($classId, fn ($query, $id) => $query->whereHas('student.profile', fn ($q) => $q->where('class_id', $id)))
+            // ->when($classId, fn ($query, $id) => $query->whereHas('student.profile', fn ($q) => $q->where('class_id', $id))) // DEPRECATED: Class system removed
             ->betweenDates($from->toDateString(), $to->toDateString());
 
         $trend = (clone $baseQuery)
@@ -177,24 +178,26 @@ class AnalyticsController extends Controller
         ];
 
         $classPerformance = [];
-        if ($user->hasRole('admin')) {
-            $classPerformance = (clone $baseQuery)
-                ->leftJoin('profiles', 'profiles.id', '=', 'hafalans.student_id')
-                ->leftJoin('classes', 'classes.id', '=', 'profiles.class_id')
-                ->selectRaw("COALESCE(classes.name, 'Tidak ada Kelas') as class_name")
-                ->selectRaw('COUNT(hafalans.id) as total')
-                ->selectRaw("SUM(CASE WHEN hafalans.status = 'murojaah' THEN 1 ELSE 0 END) as total_murojaah")
-                ->selectRaw("SUM(CASE WHEN hafalans.status = 'selesai' THEN 1 ELSE 0 END) as total_selesai")
-                ->groupBy('class_name')
-                ->orderBy('class_name')
-                ->get()
-                ->map(fn ($row) => [
-                    'class_name' => $row->class_name,
-                    'total' => (int) $row->total,
-                    'total_murojaah' => (int) $row->total_murojaah,
-                    'total_selesai' => (int) $row->total_selesai,
-                ]);
-        }
+        // DEPRECATED: Class system removed
+        $classPerformance = [];
+        // if ($user->hasRole('admin')) {
+        //     $classPerformance = (clone $baseQuery)
+        //         ->leftJoin('profiles', 'profiles.id', '=', 'hafalans.student_id')
+        //         ->leftJoin('classes', 'classes.id', '=', 'profiles.class_id')
+        //         ->selectRaw("COALESCE(classes.name, 'Tidak ada Kelas') as class_name")
+        //         ->selectRaw('COUNT(hafalans.id) as total')
+        //         ->selectRaw("SUM(CASE WHEN hafalans.status = 'murojaah' THEN 1 ELSE 0 END) as total_murojaah")
+        //         ->selectRaw("SUM(CASE WHEN hafalans.status = 'selesai' THEN 1 ELSE 0 END) as total_selesai")
+        //         ->groupBy('class_name')
+        //         ->orderBy('class_name')
+        //         ->get()
+        //         ->map(fn ($row) => [
+        //             'class_name' => $row->class_name,
+        //             'total' => (int) $row->total,
+        //             'total_murojaah' => (int) $row->total_murojaah,
+        //             'total_selesai' => (int) $row->total_selesai,
+        //         ]);
+        // }
 
         // Per Surah distribution for Bar Chart
         $perSurah = (clone $baseQuery)

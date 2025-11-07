@@ -33,7 +33,7 @@ class TeachersExport implements
     {
         $query = Profile::query()
             ->whereNotNull('nip')
-            ->with(['user:id,name,email', 'classes']);
+            ->with(['user:id,name,email']); // DEPRECATED: removed 'classes'
 
         // Apply filters
         if (!empty($this->filters['search'])) {
@@ -47,13 +47,14 @@ class TeachersExport implements
             });
         }
 
-        if (isset($this->filters['has_class'])) {
-            if ($this->filters['has_class'] === 'true' || $this->filters['has_class'] === true) {
-                $query->has('classes');
-            } elseif ($this->filters['has_class'] === 'false' || $this->filters['has_class'] === false) {
-                $query->doesntHave('classes');
-            }
-        }
+        // DEPRECATED: Class filtering removed
+        // if (isset($this->filters['has_class'])) {
+        //     if ($this->filters['has_class'] === 'true' || $this->filters['has_class'] === true) {
+        //         $query->has('classes');
+        //     } elseif ($this->filters['has_class'] === 'false' || $this->filters['has_class'] === false) {
+        //         $query->doesntHave('classes');
+        //     }
+        // }
 
         if (!empty($this->filters['date_from'])) {
             $query->whereDate('created_at', '>=', $this->filters['date_from']);
@@ -86,7 +87,8 @@ class TeachersExport implements
         static $rowNumber = 0;
         $rowNumber++;
 
-        $classNames = $teacher->classes->pluck('name')->join(', ');
+        // DEPRECATED: Class system removed
+        // $classNames = $teacher->classes->pluck('name')->join(', ');
 
         return [
             $rowNumber,
@@ -95,8 +97,8 @@ class TeachersExport implements
             $teacher->nip,
             $teacher->phone ?? '-',
             $teacher->birth_date ? $teacher->birth_date->format('d/m/Y') : '-',
-            $classNames ?: '-',
-            $teacher->classes->count(),
+            '-', // DEPRECATED: $classNames
+            0, // DEPRECATED: $teacher->classes->count()
             $teacher->created_at->format('d/m/Y H:i'),
         ];
     }

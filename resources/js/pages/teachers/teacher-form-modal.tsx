@@ -10,8 +10,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MultiSelect, type MultiSelectOption } from '@/components/ui/multi-select';
-import { useForm, usePage } from '@inertiajs/react';
+// DEPRECATED: MultiSelect no longer needed after class system removal
+// import { MultiSelect, type MultiSelectOption } from '@/components/ui/multi-select';
+import { useForm } from '@inertiajs/react';
 import * as React from 'react';
 
 export type TeacherPayload = {
@@ -38,8 +39,9 @@ export function TeacherFormModal({
     title,
 }: TeacherFormModalProps) {
     const isEditing = Boolean(teacher);
-    const page = usePage();
-    const availableClasses = (page.props as any).availableClasses as MultiSelectOption[] || [];
+    // DEPRECATED: availableClasses no longer needed
+    // const page = usePage();
+    // const availableClasses = (page.props as any).availableClasses as MultiSelectOption[] || [];
 
     const { data, setData, post, put, processing, errors, reset } =
         useForm<TeacherPayload>({
@@ -49,7 +51,8 @@ export function TeacherFormModal({
             nip: teacher?.nip ?? '',
             phone: teacher?.phone ?? '',
             birth_date: teacher?.birth_date ?? '',
-            class_ids: teacher?.class_ids ?? [],
+            // DEPRECATED: class_ids removed
+            // class_ids: teacher?.class_ids ?? [],
         });
 
     React.useEffect(() => {
@@ -61,7 +64,8 @@ export function TeacherFormModal({
                 nip: teacher?.nip ?? '',
                 phone: teacher?.phone ?? '',
                 birth_date: teacher?.birth_date ?? '',
-                class_ids: teacher?.class_ids ?? [],
+                // DEPRECATED: class_ids removed
+                // class_ids: teacher?.class_ids ?? [],
             });
         } else {
             reset();
@@ -188,7 +192,8 @@ export function TeacherFormModal({
                             <InputError message={(errors as any).birth_date} />
                         </div>
 
-                        <div className="grid gap-2">
+                        {/* DEPRECATED: Class assignment field removed - class system no longer used */}
+                        {/* <div className="grid gap-2">
                             <Label htmlFor="teacher-classes">
                                 Kelas yang Diajar{' '}
                                 <span className="text-muted-foreground">
@@ -205,7 +210,7 @@ export function TeacherFormModal({
                             <p className="text-xs text-muted-foreground">
                                 Satu guru dapat mengajar banyak kelas
                             </p>
-                        </div>
+                        </div> */}
                     </div>
 
                     <DialogFooter className="gap-2">

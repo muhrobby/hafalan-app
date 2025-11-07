@@ -6,7 +6,7 @@ use App\Exports\StudentsExport;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Imports\StudentImport;
-use App\Models\Classe;
+// use App\Models\Classe; // Removed - class system deprecated
 use App\Models\Profile;
 use App\Models\Student;
 use App\Models\User;
@@ -38,7 +38,7 @@ class StudentsController extends ProfileController
         $this->authorize('viewAny', Profile::class);
 
         $query = Profile::query()
-            ->with(['user:id,name,email', 'class:id,name'])
+            ->with(['user:id,name,email']) // DEPRECATED: removed 'class:id,name'
             ->withCount('guardians')
             ->whereNotNull('nis') // Only students
             ->when(
@@ -50,10 +50,11 @@ class StudentsController extends ProfileController
                     })->orWhere('nis', 'like', "%{$search}%");
                 })
             )
-            ->when(
-                $request->input('class_id'),
-                fn ($q, $classId) => $q->where('class_id', $classId)
-            )
+            // DEPRECATED: Class filtering removed
+            // ->when(
+            //     $request->input('class_id'),
+            //     fn ($q, $classId) => $q->where('class_id', $classId)
+            // )
             ->when(
                 $request->filled('has_guardian'),
                 function ($q) use ($request) {
@@ -103,9 +104,9 @@ class StudentsController extends ProfileController
                     'name' => $profile->user->name,
                     'email' => $profile->user->email,
                     'nis' => $profile->nis,
-                    'class' => $profile->class?->name,
-                    'class_id' => $profile->class_id,
-                    'class_name' => $profile->class?->name,
+                    // 'class' => $profile->class?->name, // DEPRECATED: Class system removed
+                    // 'class_id' => $profile->class_id, // DEPRECATED: Class system removed
+                    // 'class_name' => $profile->class?->name, // DEPRECATED: Class system removed
                     'phone' => $profile->phone,
                     'birth_date' => $profile->birth_date?->format('Y-m-d'),
                     'guardians_count' => $profile->guardians_count,
@@ -119,13 +120,13 @@ class StudentsController extends ProfileController
             });
 
         $availableGuardians = $this->getCachedGuardians();
-        $availableClasses = $this->getCachedClasses();
+        $availableClasses = $this->getCachedClasses(); // Returns empty array (deprecated)
 
         return Inertia::render($this->getPagePath(), [
             'students' => $students,
             'filters' => [
                 'search' => $request->input('search'),
-                'class_id' => $request->input('class_id'),
+                // 'class_id' => $request->input('class_id'), // DEPRECATED: Class system removed
                 'has_guardian' => $request->input('has_guardian'),
                 'date_from' => $request->input('date_from'),
                 'date_to' => $request->input('date_to'),
@@ -180,7 +181,8 @@ class StudentsController extends ProfileController
             ]);
             $studentUser->assignRole('student');
 
-            $studentClass = Classe::firstOrCreate(['name' => $validated['student_class_name']]);
+            // Class system removed - no longer create class
+            // $studentClass = Classe::firstOrCreate(['name' => $validated['student_class_name']]);
 
             $studentProfile = Profile::create([
                 'user_id' => $studentUser->id,
@@ -188,7 +190,7 @@ class StudentsController extends ProfileController
                 'nis' => $validated['student_nis'] ?? Profile::generateNis(),
                 'birth_date' => $validated['student_birth_date'] ?? null,
                 'phone' => $validated['student_phone'] ?? null,
-                'class_id' => $studentClass->id,
+                // 'class_id' => $studentClass->id, // Removed
             ]);
 
             // 2. Create Guardian
@@ -382,7 +384,7 @@ class StudentsController extends ProfileController
     {
         $this->authorize('viewAny', Profile::class);
 
-        $filters = $request->only(['search', 'class_id', 'has_guardian', 'date_from', 'date_to']);
+        $filters = $request->only(['search', 'has_guardian', 'date_from', 'date_to']); // DEPRECATED: removed 'class_id'
         $fileName = 'santri-' . date('Y-m-d-His') . '.xlsx';
 
         return Excel::download(new StudentsExport($filters), $fileName);

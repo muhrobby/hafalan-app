@@ -24,7 +24,7 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'name'         => ['required', 'string', 'max:100'],
-            'email'        => ['required', 'email', 'max:150', Rule::unique('users', 'email')],
+            'email'        => ['nullable', 'email', 'max:150', Rule::unique('users', 'email')],
             'class_name'   => ['nullable', 'string', 'max:100'],
             'birth_date'   => ['nullable', 'date'],
             'nis'          => ['nullable', 'string', 'max:50', Rule::unique('profiles', 'nis')],

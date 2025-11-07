@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ColumnDef } from '@tanstack/react-table';
-import { PencilIcon, Trash2Icon, KeyRound } from 'lucide-react';
+import { KeyRound, PencilIcon, Trash2Icon } from 'lucide-react';
 
 export type TeacherRow = {
     id: number;
@@ -12,9 +10,10 @@ export type TeacherRow = {
     nip: string;
     phone?: string | null;
     birth_date?: string | null;
-    classes_count: number;
-    class_names?: string[];
-    class_ids?: number[];
+    // DEPRECATED: Class system removed from application
+    // classes_count: number;
+    // class_names?: string[];
+    // class_ids?: number[];
     created_at: string;
     updated_at: string;
     created_at_human: string;
@@ -59,55 +58,60 @@ export function buildTeacherColumns({
             header: 'No. Telepon',
             cell: ({ row }) => row.original.phone ?? '-',
         },
-        {
-            accessorKey: 'class_names',
-            header: 'Kelas yang Diajar',
-            cell: ({ row }) => {
-                const names = row.original.class_names || [];
-                if (names.length === 0) {
-                    return <span className="text-muted-foreground">Belum ada</span>;
-                }
-                return (
-                    <div className="flex flex-wrap gap-1">
-                        {names.slice(0, 2).map((name) => (
-                            <Badge key={name} variant="secondary">
-                                {name}
-                            </Badge>
-                        ))}
-                        {names.length > 2 && (
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Badge 
-                                        variant="outline" 
-                                        className="cursor-pointer hover:bg-accent"
-                                    >
-                                        +{names.length - 2} lagi
-                                    </Badge>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80" align="start">
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium text-sm">Semua Kelas ({names.length})</h4>
-                                        <div className="flex flex-wrap gap-1 max-h-60 overflow-y-auto">
-                                            {names.map((name) => (
-                                                <Badge key={name} variant="secondary">
-                                                    {name}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        )}
-                    </div>
-                );
-            },
-        },
+        // DEPRECATED: Class column removed - class system no longer used
+        // {
+        //     accessorKey: 'class_names',
+        //     header: 'Kelas yang Diajar',
+        //     cell: ({ row }) => {
+        //         const names = row.original.class_names || [];
+        //         if (names.length === 0) {
+        //             return <span className="text-muted-foreground">Belum ada</span>;
+        //         }
+        //         return (
+        //             <div className="flex flex-wrap gap-1">
+        //                 {names.slice(0, 2).map((name) => (
+        //                     <Badge key={name} variant="secondary">
+        //                         {name}
+        //                     </Badge>
+        //                 ))}
+        //                 {names.length > 2 && (
+        //                     <Popover>
+        //                         <PopoverTrigger asChild>
+        //                             <Badge
+        //                                 variant="outline"
+        //                                 className="cursor-pointer hover:bg-accent"
+        //                             >
+        //                                 +{names.length - 2} lagi
+        //                             </Badge>
+        //                         </PopoverTrigger>
+        //                         <PopoverContent className="w-80" align="start">
+        //                             <div className="space-y-2">
+        //                                 <h4 className="font-medium text-sm">Semua Kelas ({names.length})</h4>
+        //                                 <div className="flex flex-wrap gap-1 max-h-60 overflow-y-auto">
+        //                                     {names.map((name) => (
+        //                                         <Badge key={name} variant="secondary">
+        //                                             {name}
+        //                                         </Badge>
+        //                                     ))}
+        //                                 </div>
+        //                             </div>
+        //                         </PopoverContent>
+        //                     </Popover>
+        //                 )}
+        //             </div>
+        //         );
+        //     },
+        // },
         {
             accessorKey: 'created_at',
             header: 'Dibuat',
             cell: ({ row }) => (
                 <div className="flex flex-col text-sm">
-                    <span>{new Date(row.original.created_at).toLocaleDateString('id-ID')}</span>
+                    <span>
+                        {new Date(row.original.created_at).toLocaleDateString(
+                            'id-ID',
+                        )}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                         {row.original.created_at_human}
                     </span>

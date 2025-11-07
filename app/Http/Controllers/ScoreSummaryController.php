@@ -28,12 +28,12 @@ class ScoreSummaryController extends Controller
         );
 
         $studentFilter = $request->query('student_id');
-        $classFilter = $request->query('class_id');
+        // $classFilter = $request->query('class_id'); // DEPRECATED: Class system removed
 
         $profiles = $this->scope
             ->profilesForUser($user)
             ->when($studentFilter, fn ($collection) => $collection->where('id', (int) $studentFilter))
-            ->when($classFilter, fn ($collection) => $collection->filter(fn (Profile $profile) => $profile->class_id == (int) $classFilter))
+            // ->when($classFilter, fn ($collection) => $collection->filter(fn (Profile $profile) => $profile->class_id == (int) $classFilter)) // DEPRECATED: Class system removed
             ->values();
 
         $profileIds = $profiles->pluck('id');
@@ -41,7 +41,7 @@ class ScoreSummaryController extends Controller
         $summaries = $this->scope
             ->applyHafalanScope(Hafalan::query(), $user)
             ->whereIn('student_id', $profileIds)
-            ->when($classFilter, fn ($query) => $query->whereHas('student', fn ($q) => $q->where('class_id', $classFilter)))
+            // ->when($classFilter, fn ($query) => $query->whereHas('student', fn ($q) => $q->where('class_id', $classFilter))) // DEPRECATED: Class system removed
             ->betweenDates($from->toDateString(), $to->toDateString())
             ->selectRaw('student_id, COUNT(*) as total_records')
             ->selectRaw("SUM(CASE WHEN status = 'murojaah' THEN 1 ELSE 0 END) as total_murojaah")
@@ -56,7 +56,7 @@ class ScoreSummaryController extends Controller
             return [
                 'id' => $profile->id,
                 'name' => $profile->user->name,
-                'class' => $profile->class?->name,
+                'class' => '-', // DEPRECATED: Class system removed
                 'totalSetoran' => (int) ($summary->total_records ?? 0),
                 'totalMurojaah' => (int) ($summary->total_murojaah ?? 0),
                 'totalSelesai' => (int) ($summary->total_selesai ?? 0),
@@ -73,7 +73,7 @@ class ScoreSummaryController extends Controller
                 'from' => $from->toDateString(),
                 'to' => $to->toDateString(),
                 'student_id' => $studentFilter,
-                'class_id' => $classFilter,
+                // 'class_id' => $classFilter, // DEPRECATED: Class system removed
             ],
             'availableFilters' => [
                 'students' => $profiles
@@ -83,16 +83,7 @@ class ScoreSummaryController extends Controller
                     ])
                     ->values()
                     ->toArray(),
-                'classes' => $profiles
-                    ->pluck('class')
-                    ->filter()
-                    ->unique('id')
-                    ->map(fn ($class) => [
-                        'id' => $class->id,
-                        'name' => $class->name,
-                    ])
-                    ->values()
-                    ->toArray(),
+                'classes' => [], // DEPRECATED: Class system removed
             ],
         ]);
     }

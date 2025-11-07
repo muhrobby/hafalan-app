@@ -1,3 +1,4 @@
+import { BulkImportModal } from '@/components/bulk-import-modal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -18,10 +19,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import UploadCsvModal from '@/components/upload-csv-modal';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { PlusCircle, UploadCloud } from 'lucide-react';
+import { FileSpreadsheet, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { buildGuardianColumns, type GuardianRow } from './columns';
@@ -50,7 +50,7 @@ export default function GuardiansIndex({
     canManage,
 }: GuardiansPageProps) {
     const [formOpen, setFormOpen] = React.useState(false);
-    const [uploadOpen, setUploadOpen] = React.useState(false);
+    const [bulkImportOpen, setBulkImportOpen] = React.useState(false);
     const [selectedGuardian, setSelectedGuardian] = React.useState<
         GuardianPayload | undefined
     >(undefined);
@@ -144,21 +144,29 @@ export default function GuardiansIndex({
                             <span>Data Wali</span>
                         </CardTitle>
                         {canManage && (
-                            <ButtonGroup>
+                            <ButtonGroup className="flex-wrap gap-2">
                                 <Button
                                     onClick={openCreateModal}
+                                    size="sm"
                                     className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md hover:from-emerald-700 hover:to-teal-700"
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                    Tambah Wali
+                                    <span className="hidden sm:inline">
+                                        Tambah Wali
+                                    </span>
+                                    <span className="sm:hidden">Tambah</span>
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    onClick={() => setUploadOpen(true)}
-                                    className="border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50 hover:from-teal-100 hover:to-emerald-100 dark:from-teal-950/30 dark:to-emerald-950/30"
+                                    size="sm"
+                                    onClick={() => setBulkImportOpen(true)}
+                                    className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30"
                                 >
-                                    <UploadCloud className="mr-2 h-4 w-4" />
-                                    Upload CSV
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">
+                                        Import Excel
+                                    </span>
+                                    <span className="sm:hidden">Import</span>
                                 </Button>
                             </ButtonGroup>
                         )}
@@ -231,12 +239,6 @@ export default function GuardiansIndex({
                         onOpenChange={setFormOpen}
                         guardian={selectedGuardian}
                         title={selectedGuardian ? 'Edit Wali' : 'Tambah Wali'}
-                    />
-                    <UploadCsvModal
-                        open={uploadOpen}
-                        onOpenChange={setUploadOpen}
-                        title="Upload Wali"
-                        action="/guardians/import"
                     />
                     <Dialog
                         open={Boolean(guardianToDelete)}
@@ -358,6 +360,15 @@ export default function GuardiansIndex({
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+
+                    {/* Bulk Import Modal */}
+                    <BulkImportModal
+                        open={bulkImportOpen}
+                        onOpenChange={setBulkImportOpen}
+                        importType="guardians"
+                        templateUrl="/bulk-import/guardians/template"
+                        importUrl="/bulk-import/guardians/import"
+                    />
                 </>
             )}
         </AppLayout>

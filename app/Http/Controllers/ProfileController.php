@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Classe;
+// use App\Models\Classe; // Removed - class system deprecated
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -26,6 +26,22 @@ abstract class ProfileController extends Controller
     protected function upsertProfile(array $data, ?Profile $profile = null): Profile
     {
         $roleType = $this->getRoleType();
+        
+        // For students without email, generate a unique email
+        if ($roleType === 'student' && empty($data['email'])) {
+            // Generate email based on name or NIS
+            $baseEmail = !empty($data['nis']) 
+                ? $data['nis'] 
+                : strtolower(str_replace(' ', '', $data['name']));
+            $data['email'] = $baseEmail . '@student.local';
+            
+            // Ensure uniqueness
+            $counter = 1;
+            while (User::where('email', $data['email'])->exists()) {
+                $data['email'] = $baseEmail . $counter . '@student.local';
+                $counter++;
+            }
+        }
         
         // Create/update user
         $existingUser = $profile?->user ?? User::where('email', $data['email'])->first();
@@ -85,11 +101,11 @@ abstract class ProfileController extends Controller
         $profile->birth_date = $data['birth_date'] ?? $profile->birth_date;
         $profile->phone = $data['phone'] ?? $profile->phone;
         
-        // Handle class
-        if (!empty($data['class_name'])) {
-            $class = Classe::firstOrCreate(['name' => $data['class_name']]);
-            $profile->class_id = $class->id;
-        }
+        // Class system removed
+        // if (!empty($data['class_name'])) {
+        //     $class = Classe::firstOrCreate(['name' => $data['class_name']]);
+        //     $profile->class_id = $class->id;
+        // }
     }
 
     /**
@@ -146,10 +162,11 @@ abstract class ProfileController extends Controller
                 break;
                 
             case 'teacher':
+                // DEPRECATED: Class system removed
                 // Sync classes
-                if (isset($data['class_ids'])) {
-                    $profile->classes()->sync($data['class_ids']);
-                }
+                // if (isset($data['class_ids'])) {
+                //     $profile->classes()->sync($data['class_ids']);
+                // }
                 break;
         }
     }
@@ -173,18 +190,20 @@ abstract class ProfileController extends Controller
 
     /**
      * Get cached classes for dropdown
+     * DEPRECATED: Class system removed
      */
     protected function getCachedClasses()
     {
-        return Cache::remember('available_classes', 3600, function () {
-            return Classe::select('id', 'name')
-                ->orderBy('name')
-                ->get()
-                ->map(fn($c) => [
-                    'value' => $c->id,
-                    'label' => $c->name,
-                ]);
-        });
+        return []; // Class system removed
+        // return Cache::remember('available_classes', 3600, function () {
+        //     return Classe::select('id', 'name')
+        //         ->orderBy('name')
+        //         ->get()
+        //         ->map(fn($c) => [
+        //             'value' => $c->id,
+        //             'label' => $c->name,
+        //         ]);
+        // });
     }
 
     /**

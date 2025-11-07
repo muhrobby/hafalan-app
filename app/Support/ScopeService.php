@@ -143,32 +143,37 @@ class ScopeService
             ]);
     }
 
+    /**
+     * DEPRECATED: Class system removed
+     */
     public function classOptionsFor(User $user): Collection
     {
-        $query = \App\Models\Classe::query()
-            ->select(['classes.id', 'classes.name']);
+        return collect([]); // Class system removed
+        
+        // $query = \App\Models\Classe::query()
+        //     ->select(['classes.id', 'classes.name']);
 
-        if ($user->hasRole('teacher')) {
-            $query->whereHas('teachers', fn ($q) => $q->where('profiles.user_id', $user->id));
-        } elseif ($user->hasRole('student')) {
-            $query->whereHas('students', fn ($q) => $q->where('profiles.user_id', $user->id));
-        } elseif ($user->hasAnyRole(['guardian', 'wali'])) {
-            $query->whereHas('students', function ($q) use ($user) {
-                $q->whereIn('profiles.id', function ($sq) use ($user) {
-                    $sq->select('profile_relations.profile_id')
-                        ->from('profile_relations')
-                        ->where('profile_relations.related_profile_id', $user->profile->id)
-                        ->where('profile_relations.relation_type', 'guardian');
-                });
-            });
-        }
+        // if ($user->hasRole('teacher')) {
+        //     $query->whereHas('teachers', fn ($q) => $q->where('profiles.user_id', $user->id));
+        // } elseif ($user->hasRole('student')) {
+        //     $query->whereHas('students', fn ($q) => $q->where('profiles.user_id', $user->id));
+        // } elseif ($user->hasAnyRole(['guardian', 'wali'])) {
+        //     $query->whereHas('students', function ($q) use ($user) {
+        //         $q->whereIn('profiles.id', function ($sq) use ($user) {
+        //             $sq->select('profile_relations.profile_id')
+        //                 ->from('profile_relations')
+        //                 ->where('profile_relations.related_profile_id', $user->profile->id)
+        //                 ->where('profile_relations.relation_type', 'guardian');
+        //         });
+        //     });
+        // }
 
-        return $query
-            ->orderBy('classes.name')
-            ->get()
-            ->map(fn ($class) => [
-                'id' => $class->id,
-                'name' => $class->name,
-            ]);
+        // return $query
+        //     ->orderBy('classes.name')
+        //     ->get()
+        //     ->map(fn ($class) => [
+        //         'id' => $class->id,
+        //         'name' => $class->name,
+        //     ]);
     }
 }

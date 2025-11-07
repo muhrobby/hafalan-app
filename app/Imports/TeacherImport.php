@@ -23,7 +23,6 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     {
         $name = $row['name'];
         $email = $row['email'];
-        $nipInput = $row['nip'] ?? null;
         $phone = $row['phone'] ?? null;
         $birthDate = $row['birth_date'] ?? null;
 
@@ -42,13 +41,8 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         $profile = Profile::firstOrNew(['user_id' => $user->id]);
         $wasExisting = $profile->exists;
 
-        if ($nipInput) {
-            $nipInput = trim((string) $nipInput);
-            $conflict = Profile::where('nip', $nipInput)
-                ->when($wasExisting, fn ($query) => $query->where('id', '!=', $profile->id))
-                ->exists();
-            $profile->nip = $conflict ? Profile::generateNip() : $nipInput;
-        } elseif (! $profile->nip) {
+        // Always auto-generate NIP if not exists
+        if (! $profile->nip) {
             $profile->nip = Profile::generateNip();
         }
 
@@ -70,7 +64,6 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         return [
             'name'       => ['required', 'string', 'max:100'],
             'email'      => ['required', 'email', 'max:150'],
-            'nip'        => ['nullable', 'string', 'max:50'],
             'phone'      => ['nullable', 'string', 'max:30'],
             'birth_date' => ['nullable', 'date'],
         ];

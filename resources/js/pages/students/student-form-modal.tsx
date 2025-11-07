@@ -146,21 +146,6 @@ export function StudentFormModal({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="student-email">Email</Label>
-                            <Input
-                                id="student-email"
-                                type="email"
-                                value={data.email}
-                                onChange={(event) =>
-                                    setData('email', event.target.value)
-                                }
-                                required
-                                placeholder="email@contoh.com"
-                            />
-                            <InputError message={errors.email} />
-                        </div>
-
-                        <div className="grid gap-2">
                             <Label htmlFor="student-birthdate">
                                 Tanggal Lahir{' '}
                                 <span className="text-muted-foreground">

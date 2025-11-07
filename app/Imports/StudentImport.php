@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Classe;
+// use App\Models\Classe; // DEPRECATED: Class system removed
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -87,11 +87,12 @@ class StudentImport implements
             $user->assignRole('student');
         }
 
+        // DEPRECATED: Class system removed
         // Handle class
-        $class = null;
-        if ($className) {
-            $class = Classe::firstOrCreate(['name' => trim($className)]);
-        }
+        // $class = null;
+        // if ($className) {
+        //     $class = Classe::firstOrCreate(['name' => trim($className)]);
+        // }
 
         // Create/update profile
         $profile = Profile::firstOrNew(['user_id' => $user->id]);
@@ -109,7 +110,7 @@ class StudentImport implements
         }
 
         $profile->birth_date = $birthDate ?: null;
-        $profile->class_id = $class?->id ?? $profile->class_id;
+        // $profile->class_id = $class?->id ?? $profile->class_id; // DEPRECATED: Class system removed
         $profile->phone = $phone ? trim($phone) : $profile->phone;
         $profile->user_id = $user->id;
         $profile->save();
@@ -249,7 +250,7 @@ class StudentImport implements
             'name'       => ['required', 'string', 'max:100'],
             'email'      => ['required', 'email', 'max:150'],
             'nis'        => ['nullable', 'string', 'max:50'],
-            'class_name' => ['nullable', 'string', 'max:100'],
+            // 'class_name' => ['nullable', 'string', 'max:100'], // DEPRECATED: Class system removed
             'birth_date' => ['nullable', 'date'],
             'phone'      => ['nullable', 'string', 'max:30'],
             'guardian_emails' => ['nullable', 'string'],
@@ -306,10 +307,10 @@ class StudentImport implements
             $data['nis'] = trim((string) $data['nis']);
         }
 
-        // Clean class_name
-        if (isset($data['class_name']) && $data['class_name'] !== null) {
-            $data['class_name'] = trim((string) $data['class_name']);
-        }
+        // Clean class_name - DEPRECATED: Class system removed
+        // if (isset($data['class_name']) && $data['class_name'] !== null) {
+        //     $data['class_name'] = trim((string) $data['class_name']);
+        // }
 
         // Clean phone
         if (isset($data['phone']) && $data['phone'] !== null) {

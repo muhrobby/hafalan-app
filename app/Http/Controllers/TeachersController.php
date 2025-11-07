@@ -36,7 +36,7 @@ class TeachersController extends ProfileController
         $query = Profile::query()
             ->whereNotNull('nip') // Only teachers
             ->with(['user:id,name,email'])
-            ->withCount('classes')
+            // ->withCount('classes') // DEPRECATED: Class system removed
             ->when(
                 $request->input('search'),
                 fn ($q, $search) => $q->where(function ($qq) use ($search) {
@@ -47,18 +47,19 @@ class TeachersController extends ProfileController
                       ->orWhere('phone', 'like', "%{$search}%");
                 })
             )
-            ->when(
-                $request->filled('has_class'),
-                function ($q) use ($request) {
-                    $hasClass = $request->input('has_class');
-                    if ($hasClass === true || $hasClass === 'true' || $hasClass === '1') {
-                        return $q->has('classes');
-                    } elseif ($hasClass === false || $hasClass === 'false' || $hasClass === '0') {
-                        return $q->doesntHave('classes');
-                    }
-                    return $q;
-                }
-            )
+            // DEPRECATED: Class filtering removed
+            // ->when(
+            //     $request->filled('has_class'),
+            //     function ($q) use ($request) {
+            //         $hasClass = $request->input('has_class');
+            //         if ($hasClass === true || $hasClass === 'true' || $hasClass === '1') {
+            //             return $q->has('classes');
+            //         } elseif ($hasClass === false || $hasClass === 'false' || $hasClass === '0') {
+            //             return $q->doesntHave('classes');
+            //         }
+            //         return $q;
+            //     }
+            // )
             ->when(
                 $request->input('date_from'),
                 fn ($q, $dateFrom) => $q->whereDate('created_at', '>=', $dateFrom)
@@ -82,10 +83,10 @@ class TeachersController extends ProfileController
         $teachers = $query->paginate(25)
             ->withQueryString()
             ->through(function (Profile $profile) {
-                // Load class IDs and names for display
-                $classes = $profile->classes()->get();
-                $classIds = $classes->pluck('id')->toArray();
-                $classNames = $classes->pluck('name')->toArray();
+                // DEPRECATED: Class system removed
+                // $classes = $profile->classes()->get();
+                // $classIds = $classes->pluck('id')->toArray();
+                // $classNames = $classes->pluck('name')->toArray();
                 
                 return [
                     'id' => $profile->id,
@@ -95,9 +96,9 @@ class TeachersController extends ProfileController
                     'nip' => $profile->nip,
                     'phone' => $profile->phone,
                     'birth_date' => $profile->birth_date?->format('Y-m-d'),
-                    'classes_count' => $profile->classes_count,
-                    'class_ids' => $classIds,
-                    'class_names' => $classNames,
+                    // 'classes_count' => $profile->classes_count, // DEPRECATED: Class system removed
+                    // 'class_ids' => $classIds, // DEPRECATED: Class system removed
+                    // 'class_names' => $classNames, // DEPRECATED: Class system removed
                     'created_at' => $profile->created_at->format('Y-m-d H:i:s'),
                     'updated_at' => $profile->updated_at->format('Y-m-d H:i:s'),
                     'created_at_human' => $profile->created_at->diffForHumans(),
@@ -105,7 +106,7 @@ class TeachersController extends ProfileController
                 ];
             });
 
-        $availableClasses = $this->getCachedClasses();
+        $availableClasses = $this->getCachedClasses(); // Returns empty array (deprecated)
 
         return Inertia::render($this->getPagePath(), [
             'teachers' => $teachers,

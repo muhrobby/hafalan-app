@@ -60,7 +60,8 @@ export function StudentTable<TData, TValue>({
 
     const columnLabels = {
         name: 'Nama',
-        class: 'Kelas',
+        // DEPRECATED: Class column removed
+        // class: 'Kelas',
         guardian_names: 'Wali',
         phone: 'No. Telepon',
         created_at: 'Dibuat',

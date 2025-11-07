@@ -33,7 +33,7 @@ class StudentsExport implements
     {
         $query = Profile::query()
             ->whereNotNull('nis')
-            ->with(['user:id,name,email', 'class:id,name', 'guardians.user:id,name']);
+            ->with(['user:id,name,email', 'guardians.user:id,name']); // DEPRECATED: 'class:id,name' removed
 
         // Apply filters
         if (!empty($this->filters['search'])) {
@@ -46,9 +46,10 @@ class StudentsExport implements
             });
         }
 
-        if (!empty($this->filters['class_id'])) {
-            $query->where('class_id', $this->filters['class_id']);
-        }
+        // DEPRECATED: Class filtering removed
+        // if (!empty($this->filters['class_id'])) {
+        //     $query->where('class_id', $this->filters['class_id']);
+        // }
 
         if (isset($this->filters['has_guardian'])) {
             if ($this->filters['has_guardian'] === 'true' || $this->filters['has_guardian'] === true) {
@@ -97,7 +98,7 @@ class StudentsExport implements
             $student->user->name,
             $student->user->email,
             $student->nis,
-            $student->class?->name ?? '-',
+            '-', // DEPRECATED: Class system removed
             $student->phone ?? '-',
             $student->birth_date ? $student->birth_date->format('d/m/Y') : '-',
             $guardianNames ?: '-',

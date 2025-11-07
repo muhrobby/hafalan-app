@@ -1,8 +1,12 @@
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { ColumnDef } from '@tanstack/react-table';
-import { PencilIcon, Trash2Icon, KeyRound } from 'lucide-react';
+import { KeyRound, PencilIcon, Trash2Icon } from 'lucide-react';
 
 export type StudentRow = {
     id: number;
@@ -10,9 +14,9 @@ export type StudentRow = {
     name: string;
     email: string;
     nis?: string | null;
-    class?: string | null;
-    class_id?: number | null;
-    class_name?: string | null;
+    // class?: string | null; // DEPRECATED: Class system removed
+    // class_id?: number | null; // DEPRECATED: Class system removed
+    // class_name?: string | null; // DEPRECATED: Class system removed
     birth_date?: string | null;
     phone?: string | null;
     guardians_count: number;
@@ -50,42 +54,54 @@ export function buildStudentColumns({
                 </div>
             ),
         },
-        {
-            accessorKey: 'class',
-            header: 'Kelas',
-            cell: ({ row }) => row.original.class ?? '-',
-        },
+        // DEPRECATED: Class column removed
+        // {
+        //     accessorKey: 'class',
+        //     header: 'Kelas',
+        //     cell: ({ row }) => row.original.class ?? '-',
+        // },
         {
             accessorKey: 'guardian_names',
             header: 'Wali',
             cell: ({ row }) => {
                 const names = row.original.guardian_names || [];
                 if (names.length === 0) {
-                    return <span className="text-muted-foreground">Belum ada</span>;
+                    return (
+                        <span className="text-muted-foreground">Belum ada</span>
+                    );
                 }
                 return (
                     <div className="flex flex-wrap gap-1">
                         {names.slice(0, 2).map((name) => (
-                            <Badge key={name} variant="secondary" className="text-xs">
+                            <Badge
+                                key={name}
+                                variant="secondary"
+                                className="text-xs"
+                            >
                                 {name}
                             </Badge>
                         ))}
                         {names.length > 2 && (
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Badge 
-                                        variant="outline" 
-                                        className="text-xs cursor-pointer hover:bg-accent"
+                                    <Badge
+                                        variant="outline"
+                                        className="cursor-pointer text-xs hover:bg-accent"
                                     >
                                         +{names.length - 2} lagi
                                     </Badge>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-80" align="start">
                                     <div className="space-y-2">
-                                        <h4 className="font-medium text-sm">Semua Wali ({names.length})</h4>
-                                        <div className="flex flex-wrap gap-1 max-h-60 overflow-y-auto">
+                                        <h4 className="text-sm font-medium">
+                                            Semua Wali ({names.length})
+                                        </h4>
+                                        <div className="flex max-h-60 flex-wrap gap-1 overflow-y-auto">
                                             {names.map((name) => (
-                                                <Badge key={name} variant="secondary">
+                                                <Badge
+                                                    key={name}
+                                                    variant="secondary"
+                                                >
                                                     {name}
                                                 </Badge>
                                             ))}
@@ -99,6 +115,27 @@ export function buildStudentColumns({
             },
         },
         {
+            accessorKey: 'birth_date',
+            header: 'Tanggal Lahir',
+            cell: ({ row }) => {
+                if (!row.original.birth_date) {
+                    return <span className="text-muted-foreground">-</span>;
+                }
+                return (
+                    <span className="text-sm">
+                        {new Date(row.original.birth_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                            },
+                        )}
+                    </span>
+                );
+            },
+        },
+        {
             accessorKey: 'phone',
             header: 'No. Telepon',
             cell: ({ row }) => row.original.phone ?? '-',
@@ -108,7 +145,11 @@ export function buildStudentColumns({
             header: 'Dibuat',
             cell: ({ row }) => (
                 <div className="flex flex-col text-sm">
-                    <span>{new Date(row.original.created_at).toLocaleDateString('id-ID')}</span>
+                    <span>
+                        {new Date(row.original.created_at).toLocaleDateString(
+                            'id-ID',
+                        )}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                         {row.original.created_at_human}
                     </span>

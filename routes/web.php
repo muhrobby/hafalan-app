@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\BulkImportController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\HafalanController;
 use App\Http\Controllers\ScoreSummaryController;
@@ -11,7 +12,6 @@ use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\TeachersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WaliAnalyticsController;
-use App\Models\Classe;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,7 +31,6 @@ Route::middleware(['auth', 'verified', 'force.password.change'])->group(function
             'students' => Profile::whereNotNull('nis')->count(),
             'teachers' => Profile::whereNotNull('nip')->count(),
             'guardians' => Profile::whereHas('user', fn($q) => $q->role('wali'))->count(),
-            'classes'  => Classe::count(),
             'users'    => User::count(),
         ];
 
@@ -92,6 +91,27 @@ Route::middleware(['auth', 'verified', 'force.password.change'])->group(function
 
     Route::get('/akademik/rekap-nilai', [ScoreSummaryController::class, 'index'])
         ->name('akademik.recap');
+
+    // Bulk Import Routes
+    Route::prefix('bulk-import')->name('bulk-import.')->group(function () {
+        // Student + Guardian combo
+        Route::get('/student-guardian/template', [BulkImportController::class, 'downloadStudentGuardianTemplate'])
+            ->name('student-guardian.template');
+        Route::post('/student-guardian/import', [BulkImportController::class, 'importStudentGuardian'])
+            ->name('student-guardian.import');
+
+        // Teachers
+        Route::get('/teachers/template', [BulkImportController::class, 'downloadTeacherTemplate'])
+            ->name('teachers.template');
+        Route::post('/teachers/import', [BulkImportController::class, 'importTeacher'])
+            ->name('teachers.import');
+
+        // Guardians only
+        Route::get('/guardians/template', [BulkImportController::class, 'downloadGuardianTemplate'])
+            ->name('guardians.template');
+        Route::post('/guardians/import', [BulkImportController::class, 'importGuardian'])
+            ->name('guardians.import');
+    });
 });
 
 // Route model binding untuk Profile

@@ -40,11 +40,12 @@ class Profile extends Model
 
     /**
      * Profile belongs to one Class (for students)
+     * DEPRECATED: Class system removed
      */
-    public function class(): BelongsTo
-    {
-        return $this->belongsTo(Classe::class, 'class_id');
-    }
+    // public function class(): BelongsTo
+    // {
+    //     return $this->belongsTo(Classe::class, 'class_id');
+    // }
 
     /**
      * Profile has many Hafalans (for students)
@@ -88,17 +89,18 @@ class Profile extends Model
 
     /**
      * Profile has many classes (for teachers via class_teacher)
+     * DEPRECATED: Class system removed
      */
-    public function classes(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Classe::class,
-            'class_teacher',
-            'teacher_id',
-            'class_id'
-        )
-        ->withTimestamps();
-    }
+    // public function classes(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(
+    //         Classe::class,
+    //         'class_teacher',
+    //         'teacher_id',
+    //         'class_id'
+    //     )
+    //     ->withTimestamps();
+    // }
 
     // ============ SCOPES ============
 

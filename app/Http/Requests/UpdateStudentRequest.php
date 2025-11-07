@@ -26,7 +26,7 @@ class UpdateStudentRequest extends FormRequest
 
         return [
             'name'         => ['required', 'string', 'max:100'],
-            'email'        => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($student->user_id ?? null)],
+            'email'        => ['nullable', 'email', 'max:150', Rule::unique('users', 'email')->ignore($student->user_id ?? null)],
             'class_name'   => ['nullable', 'string', 'max:100'],
             'birth_date'   => ['nullable', 'date'],
             'nis'          => ['nullable', 'string', 'max:50', Rule::unique('profiles', 'nis')->ignore($student->id ?? null)],

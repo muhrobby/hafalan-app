@@ -1,3 +1,4 @@
+import { BulkImportModal } from '@/components/bulk-import-modal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -18,10 +19,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import UploadCsvModal from '@/components/upload-csv-modal';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { PlusCircle, UploadCloud } from 'lucide-react';
+import { Download, FileSpreadsheet, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { buildStudentColumns, type StudentRow } from './columns';
@@ -37,7 +37,8 @@ type StudentsPageProps = {
     } & Record<string, any>;
     filters: {
         search?: string;
-        class_id?: string | null;
+        // DEPRECATED: Class filter removed - class system no longer used
+        // class_id?: string | null;
         has_guardian?: string | null;
     };
     canManage: boolean;
@@ -49,7 +50,7 @@ export default function StudentsIndex({
     canManage,
 }: StudentsPageProps) {
     const [formOpen, setFormOpen] = React.useState(false);
-    const [uploadOpen, setUploadOpen] = React.useState(false);
+    const [bulkImportOpen, setBulkImportOpen] = React.useState(false);
     const [selectedStudent, setSelectedStudent] = React.useState<
         StudentPayload | undefined
     >(undefined);
@@ -75,7 +76,8 @@ export default function StudentsIndex({
         if (filters.search) newFilters.search = filters.search;
         if (filters.has_guardian)
             newFilters.has_guardian = filters.has_guardian;
-        if (filters.class_id) newFilters.class_id = filters.class_id;
+        // DEPRECATED: Class filter removed
+        // if (filters.class_id) newFilters.class_id = filters.class_id;
 
         if (value === 'all') {
             delete newFilters[name];
@@ -144,21 +146,25 @@ export default function StudentsIndex({
                             <span>Data Santri</span>
                         </CardTitle>
                         {canManage && (
-                            <ButtonGroup>
+                            <ButtonGroup className="flex-wrap gap-2">
                                 <Button
                                     onClick={openCreateModal}
+                                    size="sm"
                                     className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-md hover:from-blue-700 hover:to-purple-700"
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                    Tambah Santri
+                                    <span className="hidden sm:inline">Tambah Santri</span>
+                                    <span className="sm:hidden">Tambah</span>
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    onClick={() => setUploadOpen(true)}
-                                    className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 dark:from-purple-950/30 dark:to-pink-950/30"
+                                    size="sm"
+                                    onClick={() => setBulkImportOpen(true)}
+                                    className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30"
                                 >
-                                    <UploadCloud className="mr-2 h-4 w-4" />
-                                    Upload CSV
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">Import Excel</span>
+                                    <span className="sm:hidden">Import</span>
                                 </Button>
                             </ButtonGroup>
                         )}
@@ -198,10 +204,12 @@ export default function StudentsIndex({
                             <Button
                                 onClick={handleExport}
                                 variant="outline"
+                                size="sm"
                                 className="bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30"
                             >
-                                <UploadCloud className="mr-2 h-4 w-4" />
-                                Export Excel
+                                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                <span className="hidden sm:inline">Export Excel</span>
+                                <span className="sm:hidden">Export</span>
                             </Button>
                         </div>
 
@@ -238,28 +246,6 @@ export default function StudentsIndex({
                         student={selectedStudent}
                         title={
                             selectedStudent ? 'Edit Santri' : 'Tambah Santri'
-                        }
-                    />
-                    <UploadCsvModal
-                        open={uploadOpen}
-                        onOpenChange={setUploadOpen}
-                        title="Upload Santri"
-                        action="/students/import"
-                        sampleUrl="/students/template"
-                        description={
-                            <>
-                                Pastikan file berformat <b>CSV</b> atau{' '}
-                                <b>XLSX</b>. Kolom <code>nis</code> boleh
-                                dikosongkan dan sistem akan membuat NIS dengan
-                                pola <code>yymmdd######</code>.{' '}
-                                <a
-                                    className="underline"
-                                    href="/students/template"
-                                >
-                                    Unduh template contoh
-                                </a>
-                                .
-                            </>
                         }
                     />
                     <Dialog
@@ -382,6 +368,15 @@ export default function StudentsIndex({
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+
+                    {/* Bulk Import Modal */}
+                    <BulkImportModal
+                        open={bulkImportOpen}
+                        onOpenChange={setBulkImportOpen}
+                        importType="student-guardian"
+                        templateUrl="/bulk-import/student-guardian/template"
+                        importUrl="/bulk-import/student-guardian/import"
+                    />
                 </>
             )}
         </AppLayout>

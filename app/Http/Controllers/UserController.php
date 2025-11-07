@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Classe;
+// use App\Models\Classe; // DEPRECATED: Class system removed
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +16,7 @@ class UserController extends Controller
     public function index(Request $r)
     {
         Gate::authorize('manage-users');
-        $q = User::query()->with(['roles','student.class','teacher','guardian']);
+        $q = User::query()->with(['roles','student','teacher','guardian']); // DEPRECATED: removed 'student.class'
 
         if ($role = $r->query('role')){
             $q->whereHas('roles',fn($qq)=>$qq->where('name',$role));

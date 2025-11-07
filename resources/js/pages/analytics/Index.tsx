@@ -279,6 +279,15 @@ export default function AnalyticsIndex({
     filters,
     availableFilters,
 }: AnalyticsIndexProps) {
+    const safeAvailableFilters = React.useMemo(
+        () => ({
+            students: availableFilters?.students ?? [],
+            teachers: availableFilters?.teachers ?? [],
+            classes: availableFilters?.classes ?? [],
+        }),
+        [availableFilters],
+    );
+
     const initialFiltersRef = React.useRef<FilterState>({
         from: filters.from ?? '',
         to: filters.to ?? '',
@@ -703,7 +712,7 @@ export default function AnalyticsIndex({
                                                 <SelectItem value={ALL_OPTION}>
                                                     Semua santri
                                                 </SelectItem>
-                                                {availableFilters.students.map(
+                                                {safeAvailableFilters.students.map(
                                                     (student) => (
                                                         <SelectItem
                                                             key={student.id}
@@ -718,7 +727,7 @@ export default function AnalyticsIndex({
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    {availableFilters.teachers.length > 0 && (
+                                    {safeAvailableFilters.teachers.length > 0 && (
                                         <div className="flex flex-col gap-1">
                                             <Label>Ustadz</Label>
                                             <Select
@@ -742,7 +751,7 @@ export default function AnalyticsIndex({
                                                     >
                                                         Semua ustadz
                                                     </SelectItem>
-                                                    {availableFilters.teachers.map(
+                                                    {safeAvailableFilters.teachers.map(
                                                         (teacher) => (
                                                             <SelectItem
                                                                 key={teacher.id}
@@ -758,7 +767,7 @@ export default function AnalyticsIndex({
                                             </Select>
                                         </div>
                                     )}
-                                    {availableFilters.classes.length > 0 && (
+                                    {safeAvailableFilters.classes.length > 0 && (
                                         <div className="flex flex-col gap-1">
                                             <Label>Kelas</Label>
                                             <Select
@@ -782,7 +791,7 @@ export default function AnalyticsIndex({
                                                     >
                                                         Semua kelas
                                                     </SelectItem>
-                                                    {availableFilters.classes.map(
+                                                    {safeAvailableFilters.classes.map(
                                                         (classe) => (
                                                             <SelectItem
                                                                 key={classe.id}

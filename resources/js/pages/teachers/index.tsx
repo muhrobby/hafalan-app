@@ -1,3 +1,4 @@
+import { BulkImportModal } from '@/components/bulk-import-modal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -10,18 +11,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import UploadCsvModal from '@/components/upload-csv-modal';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { PlusCircle, UploadCloud } from 'lucide-react';
+import { FileSpreadsheet, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { buildTeacherColumns, type TeacherRow } from './columns';
@@ -37,7 +29,8 @@ type TeachersPageProps = {
     } & Record<string, any>;
     filters: {
         search?: string;
-        has_class?: boolean | null;
+        // DEPRECATED: Class filter removed - class system no longer used
+        // has_class?: boolean | null;
         date_from?: string;
         date_to?: string;
     };
@@ -50,7 +43,7 @@ export default function TeachersIndex({
     canManage,
 }: TeachersPageProps) {
     const [formOpen, setFormOpen] = React.useState(false);
-    const [uploadOpen, setUploadOpen] = React.useState(false);
+    const [bulkImportOpen, setBulkImportOpen] = React.useState(false);
     const [selectedTeacher, setSelectedTeacher] = React.useState<
         TeacherPayload | undefined
     >(undefined);
@@ -74,7 +67,8 @@ export default function TeachersIndex({
         const newFilters: Record<string, any> = {};
 
         if (filters.search) newFilters.search = filters.search;
-        if (filters.has_class) newFilters.has_class = filters.has_class;
+        // DEPRECATED: Class filter removed
+        // if (filters.has_class) newFilters.has_class = filters.has_class;
 
         if (value === 'all') {
             delete newFilters[name];
@@ -143,27 +137,32 @@ export default function TeachersIndex({
                             <span>Data Guru</span>
                         </CardTitle>
                         {canManage && (
-                            <ButtonGroup>
+                            <ButtonGroup className="flex-wrap gap-2">
                                 <Button
                                     onClick={openCreateModal}
+                                    size="sm"
                                     className="bg-gradient-to-r from-amber-600 to-orange-600 shadow-md hover:from-amber-700 hover:to-orange-700"
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                    Tambah Guru
+                                    <span className="hidden sm:inline">Tambah Guru</span>
+                                    <span className="sm:hidden">Tambah</span>
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    onClick={() => setUploadOpen(true)}
-                                    className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 dark:from-orange-950/30 dark:to-amber-950/30"
+                                    size="sm"
+                                    onClick={() => setBulkImportOpen(true)}
+                                    className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30"
                                 >
-                                    <UploadCloud className="mr-2 h-4 w-4" />
-                                    Upload CSV
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">Import Excel</span>
+                                    <span className="sm:hidden">Import</span>
                                 </Button>
                             </ButtonGroup>
                         )}
                     </CardHeader>
                     <CardContent>
-                        <div className="mb-4 flex items-end gap-4">
+                        {/* DEPRECATED: Status Kelas filter removed - class system no longer used */}
+                        {/* <div className="mb-4 flex items-end gap-4">
                             <div className="flex-1 space-y-2">
                                 <Label htmlFor="status-filter">
                                     Status Kelas
@@ -197,6 +196,19 @@ export default function TeachersIndex({
                                 <UploadCloud className="mr-2 h-4 w-4" />
                                 Export Excel
                             </Button>
+                        </div> */}
+
+                        <div className="mb-4 flex items-end justify-end">
+                            <Button 
+                                onClick={handleExport} 
+                                variant="outline"
+                                size="sm"
+                                className="bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30"
+                            >
+                                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                                <span className="hidden sm:inline">Export Excel</span>
+                                <span className="sm:hidden">Export</span>
+                            </Button>
                         </div>
 
                         <TeacherTable columns={columns} data={teachers.data} />
@@ -227,28 +239,6 @@ export default function TeachersIndex({
                         onOpenChange={setFormOpen}
                         teacher={selectedTeacher}
                         title={selectedTeacher ? 'Edit Guru' : 'Tambah Guru'}
-                    />
-                    <UploadCsvModal
-                        open={uploadOpen}
-                        onOpenChange={setUploadOpen}
-                        title="Upload Guru"
-                        action="/teachers/import"
-                        sampleUrl="/teachers/template"
-                        description={
-                            <>
-                                Pastikan file berformat <b>CSV</b> atau{' '}
-                                <b>XLSX</b>. Kolom <code>nip</code> boleh
-                                dikosongkan dan sistem akan membuat NIP dengan
-                                pola <code>USTyy######</code>.{' '}
-                                <a
-                                    className="underline"
-                                    href="/teachers/template"
-                                >
-                                    Unduh template contoh
-                                </a>
-                                .
-                            </>
-                        }
                     />
                     <Dialog
                         open={Boolean(teacherToDelete)}
@@ -370,6 +360,15 @@ export default function TeachersIndex({
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+
+                    {/* Bulk Import Modal */}
+                    <BulkImportModal
+                        open={bulkImportOpen}
+                        onOpenChange={setBulkImportOpen}
+                        importType="teachers"
+                        templateUrl="/bulk-import/teachers/template"
+                        importUrl="/bulk-import/teachers/import"
+                    />
                 </>
             )}
         </AppLayout>
