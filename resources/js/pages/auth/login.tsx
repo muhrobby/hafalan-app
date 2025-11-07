@@ -128,7 +128,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             </Button>
                         </div>
 
-                        <div className="relative">
+                        {/* <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <span className="w-full border-t border-muted-foreground/20" />
                             </div>
@@ -137,7 +137,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     Atau
                                 </span>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* <div className="text-center text-sm">
                             <span className="text-muted-foreground">
