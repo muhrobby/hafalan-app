@@ -19,6 +19,12 @@ Dokumentasi cepat untuk operasi maintenance paling sering digunakan.
 
 # Troubleshooting & diagnostics
 ./scripts/troubleshoot.sh
+
+# 🆕 Health check & fix permission issues (prevent 502 errors)
+./scripts/health-check.sh
+
+# 🆕 Quick fix untuk 502 Bad Gateway errors
+./scripts/fix-502.sh
 ```
 
 ---
@@ -58,6 +64,16 @@ podman-compose restart app
 ./scripts/update-full.sh  # Safe option
 ```
 
+### Scenario 7: 🆕 500/502 Gateway Errors
+```bash
+./scripts/fix-502.sh      # Auto-fix common issues
+```
+
+### Scenario 8: 🆕 Daily maintenance & health check
+```bash
+./scripts/health-check.sh # Check system health & fix permissions
+```
+
 ---
 
 ## 🔍 Debugging
@@ -66,6 +82,14 @@ podman-compose restart app
 ```bash
 ./scripts/cache-refresh.sh
 # Then: Hard refresh browser (Ctrl+F5 or Cmd+Shift+R)
+```
+
+**🆕 502 Bad Gateway Error?**
+```bash
+./scripts/fix-502.sh  # Quick auto-fix
+# OR manually:
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache"
+podman-compose restart hafalan-web
 ```
 
 **Container not working?**
@@ -119,6 +143,11 @@ podman-compose logs web       # Nginx logs
 4. **Clear browser cache** after updates (Ctrl+F5)
 
 5. **Check logs** if something breaks: `podman-compose logs app`
+
+6. **🆕 Run health check regularly** to prevent 502 errors:
+   ```bash
+   ./scripts/health-check.sh  # Run daily or after deployment
+   ```
 
 ---
 

@@ -9,6 +9,13 @@ set -e  # Exit on error
 echo "🧹 Clearing all caches..."
 echo "=========================="
 
+# First, ensure storage permissions are good (prevent 502 errors)
+echo "🔒 Checking storage permissions..."
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache" 2>/dev/null && \
+    echo "✅ Storage permissions checked" || echo "⚠️  Storage permission fix had issues"
+
+echo ""
+echo "🧹 Clearing caches..."
 podman exec hafalan-app php artisan config:cache && echo "✅ Config cache cleared"
 podman exec hafalan-app php artisan cache:clear && echo "✅ Application cache cleared"
 podman exec hafalan-app php artisan route:cache && echo "✅ Routes cache cleared"

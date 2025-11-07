@@ -24,8 +24,9 @@ podman exec hafalan-app npm install
 echo "🗄️  Running database migrations..."
 podman exec hafalan-app php artisan migrate --force
 
-# Step 4: Fix permissions
-echo "🔒 Fixing node_modules permissions..."
+# Step 4: Fix ALL permissions (CRITICAL for preventing 502 errors)
+echo "🔒 Fixing all permissions..."
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache"
 podman exec hafalan-app sh -c "chmod -R 755 node_modules/.bin && chmod -R 755 node_modules/@esbuild"
 
 # Step 5: Build assets
@@ -39,9 +40,9 @@ podman exec hafalan-app php artisan cache:clear
 podman exec hafalan-app php artisan route:cache
 podman exec hafalan-app php artisan view:clear
 
-# Step 7: Optional restart (uncomment if needed)
-# echo "🔄 Restarting containers..."
-# podman-compose restart
+# Step 7: Restart containers to ensure fresh DNS resolution
+echo "🔄 Restarting containers..."
+podman-compose restart
 
 echo ""
 echo "✅ FULL Update Complete!"

@@ -18,8 +18,9 @@ echo "📦 Installing npm dependencies..."
 podman exec hafalan-app npm install
 
 # Step 3: Fix permissions (for production build)
-echo "🔒 Fixing node_modules permissions..."
+echo "🔒 Fixing node_modules and storage permissions..."
 podman exec hafalan-app sh -c "chmod -R 755 node_modules/.bin && chmod -R 755 node_modules/@esbuild"
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache"
 
 # Step 4: Build assets
 echo "🔨 Building frontend assets with Vite..."
@@ -28,6 +29,10 @@ podman exec hafalan-app sh -c "cd /var/www/html && NODE_ENV=production node ./no
 # Step 5: Clear caches
 echo "🧹 Clearing caches..."
 podman exec hafalan-app php artisan cache:clear
+
+# Step 6: Restart containers for fresh DNS resolution
+echo "🔄 Restarting Nginx..."
+podman-compose restart hafalan-web
 
 echo ""
 echo "✅ Frontend Update Complete!"

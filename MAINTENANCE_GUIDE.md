@@ -174,6 +174,36 @@ podman exec hafalan-app php artisan cache:clear
 
 ## 🛠️ Troubleshooting
 
+### **⚠️ 502 Bad Gateway Error (CRITICAL)**
+
+**Penyebab Umum:**
+1. **Storage folder permission denied** - PHP-FPM tidak bisa write ke `/var/www/html/storage`
+2. **PHP-FPM crash** - Container PHP-FPM tidak running atau tidak listening
+3. **Nginx DNS cache stale** - Nginx cache DNS lama setelah container restart
+
+**Solusi Cepat:**
+```bash
+# Option 1: Quick auto-fix
+./scripts/fix-502.sh
+
+# Option 2: Manual steps
+# 1. Fix permissions
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache"
+
+# 2. Clear caches
+podman exec hafalan-app php artisan cache:clear
+
+# 3. Restart containers (especially Nginx for fresh DNS)
+podman-compose restart hafalan-web
+```
+
+**Pencegahan:**
+- Jalankan `./scripts/health-check.sh` secara regular (daily/after deployment)
+- Pastikan setiap script update sudah include permission fix
+- Monitor logs: `podman-compose logs app -f`
+
+---
+
 ### **Masalah: Perubahan tidak terlihat di browser**
 ```bash
 # 1. Cek apakah cache sudah cleared

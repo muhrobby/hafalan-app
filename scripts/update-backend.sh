@@ -17,7 +17,11 @@ git pull origin main
 echo "📦 Installing Composer dependencies..."
 podman exec hafalan-app composer install --no-dev --optimize-autoloader
 
-# Step 3: Run migrations
+# Step 3: Fix storage permissions BEFORE running migrations
+echo "🔒 Fixing storage directory permissions..."
+podman exec hafalan-app sh -c "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache"
+
+# Step 4: Run migrations
 echo "🗄️  Running database migrations..."
 podman exec hafalan-app php artisan migrate --force
 
